@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.26)
 
 # set the project name
-project(Parallel_Accelerated_Computing)
+project(SpeedUp_Computing)
 
 # set the C++ standard to C++ 14
 set(CMAKE_CXX_STANDARD 14)
