@@ -1,4 +1,4 @@
-# Parallel-Accelerated-Computing
+# SpeedUp-Computing
 
 # 开发日志
 [CHANGELOG.md](./docs/CHANGELOG.md)
