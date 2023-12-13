@@ -43,3 +43,8 @@ cmake --build .
     ├── original.cpp    # 加速前
     └── speedup.cpp     # 加速后
 ```
+
+添加了宏函数，表示对数据的访问：
+```cpp
+#define ACCESS(data) log(sqrt(data))
+```
