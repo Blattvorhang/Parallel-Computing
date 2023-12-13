@@ -1,5 +1,8 @@
 # Parallel-Accelerated-Computing
 
+# 开发日志
+[CHANGELOG.md](./docs/CHANGELOG.md)
+
 # 项目内容
 两人一组，利用相关C++需要和加速(sse，多线程)手段，以及通讯技术(1.rpc，命名管道，2.http，socket)等实现函数（浮点数数组求和，求最大值，排序）。所有处理在两台计算机协作执行，尽可能挖掘两个计算机的潜在算力。
 
