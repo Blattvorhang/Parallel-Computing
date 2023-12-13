@@ -49,15 +49,15 @@ for (size_t i = 0; i < DATANUM; i++)//数据初始化
 
 ```cpp
 float sum(const float data[],const int len); //data是原始数据，len为长度。结果通过函数返回
-float max((const float data[],const int len);//data是原始数据，len为长度。结果通过函数返回
-float sort((const float data[],const int len, float  result[]);//data是原始数据，len为长度。排序结果在result中。
+float max(const float data[],const int len);//data是原始数据，len为长度。结果通过函数返回
+float sort(const float data[],const int len, float  result[]);//data是原始数据，len为长度。排序结果在result中。
 ```
 
 ### 提供代码（2/2）双机加速版本  
 ```cpp
 float sumSpeedUp(const float data[],const int len); //data是原始数据，len为长度。结果通过函数返回
-float maxSpeedUp((const float data[],const int len);//data是原始数据，len为长度。结果通过函数返回
-float sortSpeedUp((const float data[],const int len, float result[]);//data是原始数据，len为长度。排序结果在result中。
+float maxSpeedUp(const float data[],const int len);//data是原始数据，len为长度。结果通过函数返回
+float sortSpeedUp(const float data[],const int len, float result[]);//data是原始数据，len为长度。排序结果在result中。
 ```
 加速中如果使用SSE，特别注意SSE的指令和数据长度有关，单精度后缀ps,双精度后缀pd。
 
