@@ -1,3 +1,5 @@
+#include "calculation.h"
+
 float sum(const float data[], const int len) {
     // TODO: sum up all the data
 }
@@ -9,5 +11,7 @@ float max(const float data[], const int len) {
 
 
 float sort(const float data[], const int len, float result[]) {
-    // TODO: sort the data
+    for (int i = 0; i < len; i++)
+        result[i] = data[i];
+    mergeSort(result, len);
 }
