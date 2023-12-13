@@ -1,4 +1,5 @@
 #include <iostream>
+#include "calculation.h"
 
 #define MAX_THREADS 64
 #define SUBDATANUM 2000000
@@ -6,6 +7,7 @@
 
 // data to be tested
 float rawFloatData[DATANUM];
+float result[DATANUM];
 
 
 int main() {
@@ -16,12 +18,20 @@ int main() {
     }
     
     // test
-    float result = 0;
-    for (size_t i = 0; i < DATANUM; i++)
+    mergeSort(rawFloatData, DATANUM, result);
+    int isSorted = 1;
+    for (size_t i = 0; i < DATANUM - 1; i++)
     {
-        result += rawFloatData[i];
+        if (ACCESS(result[i]) > ACCESS(result[i + 1]))
+        {
+            isSorted = 0;
+            break;
+        }
     }
-    std::cout << "result: " << result << std::endl;
+    if (isSorted)
+        std::cout << "The result is sorted." << std::endl;
+    else
+        std::cout << "The result is not sorted." << std::endl;
 
     return 0;
 }
