@@ -18,7 +18,7 @@ cmake --build .
 
 ## 文件执行
 ```bash
-./Parallel_Accelerated_Computing
+./SpeedUp_Computing
 ```
 
 ## 修改内容
