@@ -14,5 +14,9 @@ mkdir build
 cd build
 cmake ..
 cmake --build .
+```
+
+## 文件执行
+```bash
 ./Parallel_Accelerated_Computing
 ```

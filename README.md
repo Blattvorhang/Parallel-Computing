@@ -1,6 +1,6 @@
 # Parallel-Accelerated-Computing
 
-## 内容
+# 项目内容
 两人一组，利用相关C++需要和加速(sse，多线程)手段，以及通讯技术(1.rpc，命名管道，2.http，socket)等实现函数（浮点数数组求和，求最大值，排序）。所有处理在两台计算机协作执行，尽可能挖掘两个计算机的潜在算力。
 
 ## 要求
@@ -33,8 +33,10 @@
 
 //待测试数据定义为：
 float rawFloatData[DATANUM];
+```
 
-参照下列数据初始化代码：两台计算机可以分开初始化，减少传输代价
+参照下列数据初始化代码：两台计算机可以分开初始化，减少传输代价。
+```cpp
 for (size_t i = 0; i < DATANUM; i++)//数据初始化
 {
 	rawFloatData[i] = float(i+1);
@@ -43,7 +45,7 @@ for (size_t i = 0; i < DATANUM; i++)//数据初始化
 
 为了模拟任务：每次访问数据时，用`log(sqrt(rawFloatData[i]))`进行访问！就是说比如计算加法 用 `sum+=log(sqrt(rawFloatData[i]))`,而不是`sum+=rawFloatData[i]` !!。这里计算结果和存储精度之间有损失，但你们机器的指令集限制，如果使用SSE中的`double`型的话，单指令只能处理4个`double`，如果是`float`则可以8个。所以用`float`加速比会更大。
 
-
+## 代码要求
 ### 提供代码（1/2）  
 需要提供的函数：(不加速版本，为同样的数据量在两台计算机上各自运行的时间。算法一致，只是不采用任何加速手段（SSE，多线程或者OPENMP)）
 
@@ -72,4 +74,4 @@ cout<<输出最大值<<endl;
 cout<<输出排序是否正确<<endl;
 ```
 
-大家注意，如果单机上那么大数据量无法计算，可以只算一半。修改 `#define SUBDATANUM 2000000` 为 `#define SUBDATANUM 1000000`做单机计算。双机上每个计算机都申请`#define SUBDATANUM 1000000`大的数据，即实现`#define SUBDATANUM 2000000`的运算。
+注意，如果单机上那么大数据量无法计算，可以只算一半。修改 `#define SUBDATANUM 2000000` 为 `#define SUBDATANUM 1000000`做单机计算。双机上每个计算机都申请`#define SUBDATANUM 1000000`大的数据，即实现`#define SUBDATANUM 2000000`的运算。
