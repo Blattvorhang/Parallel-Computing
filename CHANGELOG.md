@@ -7,3 +7,12 @@
    1. max和sum的合并都很直观，sort采用mergeSort的merge操作来实现。
 2. 该拆多少，每部分要拆到哪
 3. 是否选择GPU（后续考虑）
+
+## CMake的构建
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+./Parallel_Accelerated_Computing
+```

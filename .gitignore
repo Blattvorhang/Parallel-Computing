@@ -34,3 +34,6 @@
 # Debug files
 /.idea
 /.vscode
+
+# Build folder
+/build
