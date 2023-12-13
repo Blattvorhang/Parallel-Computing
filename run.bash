@@ -1,2 +1,2 @@
 #!/bin/bash
-./build/bin/Parallel_Accelerated_Computing
+./build/bin/SpeedUp_Computing
