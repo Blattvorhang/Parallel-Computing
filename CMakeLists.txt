@@ -13,6 +13,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # add the executable
 add_executable(${PROJECT_NAME}
         src/main.cpp
+        src/original.cpp
+        src/speedup.cpp
+        src/common.cpp
 )
 
 # add the include directory

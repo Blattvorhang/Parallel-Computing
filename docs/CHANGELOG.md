@@ -20,3 +20,26 @@ cmake --build .
 ```bash
 ./Parallel_Accelerated_Computing
 ```
+
+## 修改内容
+建立项目基本文件架构，CMakeLists.txt设置完成，建立两个bash文件，其中`build.sh`用于编译构建可执行文件，`run.bash`用于执行生成的文件。
+
+文件说明：
+```shell
+.
+├── CMakeLists.txt      # 项目构建文件
+├── LICENSE             # MIT License
+├── README.md
+├── build               # 编译生成文件夹，.gitignore已忽略
+├── build.bash          # 编译脚本
+├── docs
+│   └── CHANGELOG.md    # 开发日志
+├── include             # 头文件
+│   └── calculation.h
+├── run.bash            # 运行脚本
+└── src                 # CPP源文件
+    ├── common.cpp      # 公用函数
+    ├── main.cpp        # 主函数
+    ├── original.cpp    # 加速前
+    └── speedup.cpp     # 加速后
+```
