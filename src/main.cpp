@@ -23,13 +23,13 @@ static float original_result[DATANUM], speedup_result[DATANUM];
  */
 double timeTest(const float data[],
                 const int len,
-                float& sum_value,
-                float& max_value,
                 float result[],
                 void (*func)(const float[], const int, float&, float&, float[]),
                 const int test_num = 5) {
+
     timespec start, end;
     double time_consumed;
+    float sum_value, max_value;
 
     clock_gettime(CLOCK_REALTIME, &start);
     for (int i = 0; i < test_num; i++)
@@ -39,6 +39,8 @@ double timeTest(const float data[],
     time_consumed /= test_num;
 
     std::cout << "Time consumed: " << time_consumed << "s" << std::endl;
+
+    /* last time result */
     std::cout << "sum: " << sum_value << std::endl;
     std::cout << "max: " << max_value << std::endl;
 
@@ -88,19 +90,16 @@ int main(int argc, char const *argv[]) {
         rawFloatData[i] = float(i + 1);
     
     double original_time, speedup_time;
-    float original_sum, speedup_sum;
-    float original_max, speedup_max;
-
     double speedup_ratio;
 
     /* original time test */
     std::cout << "--- Original version ---" << std::endl;
-    original_time = timeTest(rawFloatData, DATANUM, original_sum, original_max, original_result, run_original);
+    original_time = timeTest(rawFloatData, DATANUM, original_result, run_original);
     std::cout << std::endl;
 
     /* speedup time test */
     std::cout << "--- Speedup version ---" << std::endl;
-    speedup_time = timeTest(rawFloatData, DATANUM, speedup_sum, speedup_max, speedup_result, run_speedup);
+    speedup_time = timeTest(rawFloatData, DATANUM, speedup_result, run_speedup);
     std::cout << std::endl;
 
     /* speedup ratio */
