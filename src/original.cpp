@@ -11,7 +11,7 @@ float sum(const float data[], const int len) {
 
 
 float max(const float data[], const int len) {
-    if (len == 0)
+    if (len <= 0)
         return 0;
     float max_value = ACCESS(data[0]);
     for (int i = 1; i < len; i++) {
