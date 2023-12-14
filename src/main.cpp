@@ -52,9 +52,9 @@ double timeTest(const float data[],
         }
     }
     if (sorted_flag)
-        std::cout << "result is sorted." << std::endl;
+        std::cout << "Result is sorted." << std::endl;
     else
-        std::cout << "result is not sorted." << std::endl;
+        std::cout << "Result is not sorted." << std::endl;
 
     return time_consumed;
 }
