@@ -1,4 +1,5 @@
 #include "calculation.h"
+#include "common.h"
 
 /**
  * @brief Merge two sorted arrays into one sorted array.
@@ -50,7 +51,7 @@ void run_original(const float data[], const int len, float& sum_value, float& ma
 }
 
 
-void run_speedup(const float data[], const int len, float& sum_value, float& max_value, float result[]) {
+void run_speedup(const float data[], const int len, Mode mode, float& sum_value, float& max_value, float result[]) {
     // TODO: Distinguish client and server mode.
     sum_value = sumSpeedUp(data, len);
     max_value = maxSpeedUp(data, len);

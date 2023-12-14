@@ -4,15 +4,6 @@
 #include "calculation.h"
 #include "common.h"
 
-#define MAX_THREADS 64
-#define SUBDATANUM 2000000
-#define DATANUM (SUBDATANUM * MAX_THREADS)   /* total number of data */
-
-typedef enum {
-    CLIENT,
-    SERVER
-} Mode;
-
 // data to be tested (too large to be allocated on stack)
 float rawFloatData[DATANUM];
 float original_result[DATANUM], speedup_result[DATANUM];
@@ -40,10 +31,7 @@ int main(int argc, char const *argv[]) {
     
     /* initialize data locally */
     for (size_t i = 0; i < DATANUM; i++)
-    {
         rawFloatData[i] = float(i + 1);
-    }
-
     
     timespec start, end;
     double original_time, speedup_time;
@@ -51,11 +39,14 @@ int main(int argc, char const *argv[]) {
     float original_sum, speedup_sum;
     float original_max, speedup_max;
 
-    /* original */
+    const int TESTNUM = 1;  // 5
+    /* original time test */
     clock_gettime(CLOCK_REALTIME, &start);
-    run_original(rawFloatData, DATANUM, original_sum, original_max, original_result);
+    for (int i = 0; i < TESTNUM; i++)
+        run_original(rawFloatData, DATANUM, original_sum, original_max, original_result);
     clock_gettime(CLOCK_REALTIME, &end);
     original_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+    original_time /= TESTNUM;
 
     std::cout << "Original time consumed: " << original_time << "s" << std::endl;
     std::cout << "Original sum: " << original_sum << std::endl;
