@@ -14,8 +14,6 @@ static float original_result[DATANUM], speedup_result[DATANUM];
  * @brief Test the time consumed by a function.
  * @param data The array to be calculated.
  * @param len The length of the data.
- * @param sum_value The sum of the data.
- * @param max_value The max of the data.
  * @param result The result of the sorted data.
  * @param func The function to be tested.
  * @param test_num The number of times to test, for calculating the average time. (default: 5)
