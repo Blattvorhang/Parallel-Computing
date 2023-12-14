@@ -39,5 +39,20 @@ void mergeSort(const float data[], const int size, float result[]) {
     const int rightSize = size - mid;
     mergeSort(left, leftSize, result);
     mergeSort(right, rightSize, result + mid);
-    merge(result, left, right, leftSize, rightSize);   
+    merge(result, left, right, leftSize, rightSize);
+}
+
+
+void run_original(const float data[], const int len, float& sum_value, float& max_value, float result[]) {
+    sum_value = sum(data, len);
+    max_value = max(data, len);
+    sort(data, len, result);
+}
+
+
+void run_speedup(const float data[], const int len, float& sum_value, float& max_value, float result[]) {
+    // TODO: Distinguish client and server mode.
+    sum_value = sumSpeedUp(data, len);
+    max_value = maxSpeedUp(data, len);
+    sortSpeedUp(data, len, result);
 }

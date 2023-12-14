@@ -48,21 +48,21 @@ for (size_t i = 0; i < DATANUM; i++)//数据初始化
 
 为了模拟任务：每次访问数据时，用`log(sqrt(rawFloatData[i]))`进行访问！就是说比如计算加法，用 `sum+=log(sqrt(rawFloatData[i]))`,而不是`sum+=rawFloatData[i]` !!。这里计算结果和存储精度之间有损失，但你们机器的指令集限制，如果使用SSE中的`double`型的话，单指令只能处理4个`double`，如果是`float`则可以8个。所以用`float`加速比会更大。
 
-## 代码要求
-### 提供代码（1/2）  
+## 提供代码
+### （1/2）不加速版本  
 需要提供的函数：(不加速版本，为同样的数据量在两台计算机上各自运行的时间。算法一致，只是不采用任何加速手段（SSE，多线程或者OPENMP)）
 
 ```cpp
 float sum(const float data[], const int len); //data是原始数据，len为长度。结果通过函数返回
 float max(const float data[], const int len);//data是原始数据，len为长度。结果通过函数返回
-float sort(const float data[], const int len, float result[]);//data是原始数据，len为长度。排序结果在result中。
+void sort(const float data[], const int len, float result[]);//data是原始数据，len为长度。排序结果在result中。
 ```
 
-### 提供代码（2/2）双机加速版本  
+### （2/2）双机加速版本  
 ```cpp
 float sumSpeedUp(const float data[], const int len); //data是原始数据，len为长度。结果通过函数返回
 float maxSpeedUp(const float data[], const int len);//data是原始数据，len为长度。结果通过函数返回
-float sortSpeedUp(const float data[], const int len, float result[]);//data是原始数据，len为长度。排序结果在result中。
+void sortSpeedUp(const float data[], const int len, float result[]);//data是原始数据，len为长度。排序结果在result中。
 ```
 加速中如果使用SSE，特别注意SSE的指令和数据长度有关，单精度后缀ps,双精度后缀pd。
 
