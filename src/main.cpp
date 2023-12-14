@@ -4,21 +4,74 @@
 #include "calculation.h"
 #include "common.h"
 
+Mode mode;
+
 // data to be tested (too large to be allocated on stack)
-float rawFloatData[DATANUM];
-float original_result[DATANUM], speedup_result[DATANUM];
+static float rawFloatData[DATANUM];
+static float original_result[DATANUM], speedup_result[DATANUM];
+
+/**
+ * @brief Test the time consumed by a function.
+ * @param data The array to be calculated.
+ * @param len The length of the data.
+ * @param sum_value The sum of the data.
+ * @param max_value The max of the data.
+ * @param result The result of the sort.
+ * @param func The function to be tested.
+ * @param test_num The number of times to test, for calculating the average time. (default: 5)
+ * @return The time consumed by the function.
+ */
+double timeTest(const float data[],
+                const int len,
+                float& sum_value,
+                float& max_value,
+                float result[],
+                void (*func)(const float[], const int, float&, float&, float[]),
+                const int test_num = 5) {
+    timespec start, end;
+    double time_consumed;
+
+    clock_gettime(CLOCK_REALTIME, &start);
+    for (int i = 0; i < test_num; i++)
+        func(data, len, sum_value, max_value, result);
+    clock_gettime(CLOCK_REALTIME, &end);
+    time_consumed = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+    time_consumed /= test_num;
+
+    std::cout << "Time consumed: " << time_consumed << "s" << std::endl;
+    std::cout << "sum: " << sum_value << std::endl;
+    std::cout << "max: " << max_value << std::endl;
+
+    int sorted_flag = 1;
+    for (size_t i = 0; i < DATANUM - 1; i++)
+    {
+        if (ACCESS(result[i]) > ACCESS(result[i + 1]))
+        {
+            sorted_flag = 0;
+            break;
+        }
+    }
+    if (sorted_flag)
+        std::cout << "result is sorted." << std::endl;
+    else
+        std::cout << "result is not sorted." << std::endl;
+
+    return time_consumed;
+}
 
 
 int main(int argc, char const *argv[]) {
     /* check arguments */
     if (argc < 2) {
-        std::cerr << "Usage: " << " [-c/--client] or [-s/--server]" << std::endl;
+        std::cerr << "Usage: " << " [-l | --local] [-c | --client] [-s | --server]" << std::endl;
         return 1;
     }
 
-    Mode mode;
     std::string arg = argv[1];
-    if (arg == "-c" || arg == "--client") {
+    if (arg == "-l" || arg == "--local") {
+        std::cout << "Running in local mode." << std::endl;
+        mode = LOCAL;
+    } else if (arg == "-c" || arg == "--client") {
         std::cout << "Running in client mode." << std::endl;
         mode = CLIENT;
     } else if (arg == "-s" || arg == "--server") {
@@ -28,43 +81,31 @@ int main(int argc, char const *argv[]) {
         std::cerr << "Unknown option: " << arg << std::endl;
         return 1;
     }
+    std::cout << std::endl;
     
     /* initialize data locally */
     for (size_t i = 0; i < DATANUM; i++)
         rawFloatData[i] = float(i + 1);
     
-    timespec start, end;
     double original_time, speedup_time;
-
     float original_sum, speedup_sum;
     float original_max, speedup_max;
 
-    const int TESTNUM = 1;  // 5
+    double speedup_ratio;
+
     /* original time test */
-    clock_gettime(CLOCK_REALTIME, &start);
-    for (int i = 0; i < TESTNUM; i++)
-        run_original(rawFloatData, DATANUM, original_sum, original_max, original_result);
-    clock_gettime(CLOCK_REALTIME, &end);
-    original_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
-    original_time /= TESTNUM;
+    std::cout << "--- Original version ---" << std::endl;
+    original_time = timeTest(rawFloatData, DATANUM, original_sum, original_max, original_result, run_original);
+    std::cout << std::endl;
 
-    std::cout << "Original time consumed: " << original_time << "s" << std::endl;
-    std::cout << "Original sum: " << original_sum << std::endl;
-    std::cout << "Original max: " << original_max << std::endl;
+    /* speedup time test */
+    std::cout << "--- Speedup version ---" << std::endl;
+    speedup_time = timeTest(rawFloatData, DATANUM, speedup_sum, speedup_max, speedup_result, run_speedup);
+    std::cout << std::endl;
 
-    int isSorted = 1;
-    for (size_t i = 0; i < DATANUM - 1; i++)
-    {
-        if (ACCESS(original_result[i]) > ACCESS(original_result[i + 1]))
-        {
-            isSorted = 0;
-            break;
-        }
-    }
-    if (isSorted)
-        std::cout << "Original result is sorted." << std::endl;
-    else
-        std::cout << "Original result is not sorted." << std::endl;
+    /* speedup ratio */
+    speedup_ratio = original_time / speedup_time;
+    std::cout << "Speedup ratio: " << speedup_ratio << std::endl;
 
     return 0;
 }

@@ -51,6 +51,11 @@ cmake --build .
 
 # 12.14 (Blattvorhang)
 完成了`original.cpp`，区分`client`与`server`，`client`发出信号（暂定为数组起始下标）给`server`，`server`计算完成后把结果发回`client`。
+三种运行模式：
+1. LOCAL
+2. CLIENT
+3. SERVER
+由调用可执行文件时的命令行参数给出。
 
 目前能想到的优化方案：
 1. 多线程：对数组采用二分，每二分一次产生两个线程，由于`MAX_THREADS`为64，递归深度为5（1+2+4+8+16+32=63）

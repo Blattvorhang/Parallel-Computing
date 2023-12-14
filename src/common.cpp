@@ -1,5 +1,12 @@
+#include <iostream>
+#include <ctime>
+//#include <algorithm>
 #include "calculation.h"
 #include "common.h"
+
+#define TIME_RECORD 0  // define whether to recored the time of each part
+
+extern Mode mode;
 
 /**
  * @brief Merge two sorted arrays into one sorted array.
@@ -45,13 +52,45 @@ void mergeSort(const float data[], const int size, float result[]) {
 
 
 void run_original(const float data[], const int len, float& sum_value, float& max_value, float result[]) {
+#if TIME_RECORD
+    timespec start, end;
+    double time_consumed;
+
+    clock_gettime(CLOCK_REALTIME, &start);
+    sum_value = sum(data, len);
+    clock_gettime(CLOCK_REALTIME, &end);
+    time_consumed = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+    std::cout << "sum time consumed: " << time_consumed << "s" << std::endl;
+
+    clock_gettime(CLOCK_REALTIME, &start);
+    max_value = max(data, len);
+    clock_gettime(CLOCK_REALTIME, &end);
+    time_consumed = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+    std::cout << "max time consumed: " << time_consumed << "s" << std::endl;
+
+    /*
+    clock_gettime(CLOCK_REALTIME, &start);
+    std::copy(data, data + len, result);
+    std::sort(result, result + len);
+    clock_gettime(CLOCK_REALTIME, &end);
+    time_consumed = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+    std::cout << "std::sort time consumed: " << time_consumed << "s" << std::endl;
+    */
+
+    clock_gettime(CLOCK_REALTIME, &start);
+    sort(data, len, result);
+    clock_gettime(CLOCK_REALTIME, &end);
+    time_consumed = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+    std::cout << "sort time consumed: " << time_consumed << "s" << std::endl;
+#else
     sum_value = sum(data, len);
     max_value = max(data, len);
     sort(data, len, result);
+#endif
 }
 
 
-void run_speedup(const float data[], const int len, Mode mode, float& sum_value, float& max_value, float result[]) {
+void run_speedup(const float data[], const int len, float& sum_value, float& max_value, float result[]) {
     // TODO: Distinguish client and server mode.
     sum_value = sumSpeedUp(data, len);
     max_value = maxSpeedUp(data, len);

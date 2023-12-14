@@ -1,13 +1,16 @@
+#include "common.h"
+
+
 float sumSpeedUp(const float data[], const int len) {
-    // TODO: sum up all the data
+    return 0;  // TODO: return the sum
 }
 
 
 float maxSpeedUp(const float data[], const int len) {
-    // TODO: find the max value
+    return 0;  // TODO: return the max value
 }
 
 
-float sortSpeedUp(const float data[], const int len, float result[]) {
+void sortSpeedUp(const float data[], const int len, float result[]) {
     // TODO: sort the data
 }
