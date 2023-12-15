@@ -62,3 +62,40 @@ cmake --build .
 1. 多线程：对数组采用二分，每二分一次产生两个线程，由于`MAX_THREADS`为64，递归深度为5（1+2+4+8+16+32=63）
 2. SSE（单指令多数据）：可能要提前进行代码框架设计
 3. CUDA：和SSE类似，要提前进行代码框架设计
+
+
+# 12.15 (Blattvorhang)
+求和变量`sum_value`如果选用`float`会产生精度误差，串行和并行结果不一致，其中一次结果如下：
+```
+Running in local mode.
+
+--- Original version ---
+Time consumed: 5.62687s
+sum: 2.68435e+08
+max: 9.33377
+
+--- Speedup version ---
+Time consumed: 0.753798s
+sum: 1.12936e+09
+max: 9.33377
+
+Speedup ratio: 7.46469
+```
+由于log(sqrt(data))的输入和返回参数都是`double`类型，主要耗时在这两个函数而非加法上，故加法采用`double`并不会产生较大的时间损失。
+`sum_value`改用`double`类型后，结果如下：
+```
+Running in local mode.
+
+--- Original version ---
+Time consumed: 5.56075s
+sum: 1.13072e+09
+max: 9.33377
+
+--- Speedup version ---
+Time consumed: 0.704421s
+sum: 1.13072e+09
+max: 9.33377
+
+Speedup ratio: 7.89407
+```
+可以发现用时差别不大（好像还变快了，怀疑是前面`float`转`double`花了额外的时间），而加速前后的结果不再有差别。

@@ -12,9 +12,9 @@ static float rawFloatData[DATANUM];
 static float original_result[DATANUM], speedup_result[DATANUM];
 
 
-void init(float data[]) {
+void init(float data[], const int len) {
     // TODO: shuffle the data
-    for (size_t i = 0; i < DATANUM; i++)
+    for (size_t i = 0; i < len; i++)
         rawFloatData[i] = float(i + 1);
 }
 
@@ -93,7 +93,7 @@ int main(int argc, char const *argv[]) {
     std::cout << std::endl;
     
     /* initialize data locally */
-    init(rawFloatData);
+    init(rawFloatData, DATANUM);
     
     double original_time, speedup_time;
     double speedup_ratio;

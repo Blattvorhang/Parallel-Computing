@@ -37,3 +37,6 @@
 
 # Build folder
 /build
+
+# Test folder
+/test

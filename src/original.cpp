@@ -2,10 +2,10 @@
 
 
 float sum(const float data[], const int len) {
-    float sum_value = 0;
+    double sum_value = 0;  // use double to guarantee the precision
     for (int i = 0; i < len; i++)
         sum_value += ACCESS(data[i]);
-    return sum_value;
+    return float(sum_value);
 }
 
 

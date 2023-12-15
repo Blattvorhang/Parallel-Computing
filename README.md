@@ -46,7 +46,8 @@ for (size_t i = 0; i < DATANUM; i++)//数据初始化
 }
 ```
 
-为了模拟任务：每次访问数据时，用`log(sqrt(rawFloatData[i]))`进行访问！就是说比如计算加法，用 `sum+=log(sqrt(rawFloatData[i]))`,而不是`sum+=rawFloatData[i]` !!。这里计算结果和存储精度之间有损失，但你们机器的指令集限制，如果使用SSE中的`double`型的话，单指令只能处理4个`double`，如果是`float`则可以8个。所以用`float`加速比会更大。
+为了模拟任务，每次访问数据时，用`log(sqrt(rawFloatData[i]))`进行访问！例如计算加法，用 `sum+=log(sqrt(rawFloatData[i]))`，而非`sum+=rawFloatData[i]`！！  
+这里计算结果和存储精度之间有损失，但由于机器的指令集限制，如果使用SSE中的`double`型的话，单指令只能处理4个`double`，如果是`float`则可以8个。所以用`float`加速比会更大。
 
 ## 提供代码
 ### （1/2）不加速版本  
