@@ -1,9 +1,14 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include <random>
+#include <algorithm>  // only for std::shuffle
 #include "original.h"
 #include "speedup.h"
 #include "common.h"
+
+#define INIT_SHUFFLE 1  // define whether to shuffle the data before sorting
+#define TEST_NUM 1  // number of times to test, for calculating the average time
 
 Mode mode;
 
@@ -13,9 +18,14 @@ static float original_result[DATANUM], speedup_result[DATANUM];
 
 
 void init(float data[], const int len) {
-    // TODO: shuffle the data
     for (size_t i = 0; i < len; i++)
         rawFloatData[i] = float(i + 1);
+
+#if INIT_SHUFFLE
+    // Use the same seed for random number generator to ensure the same result
+    std::mt19937 rng(42);
+    std::shuffle(rawFloatData, rawFloatData + len, rng);
+#endif
 }
 
 
@@ -54,6 +64,7 @@ double timeTest(const float data[],
     int sorted_flag = 1;
     for (size_t i = 0; i < DATANUM - 1; i++)
     {
+        // std::cout << result[i] << " ";
         if (ACCESS(result[i]) > ACCESS(result[i + 1]))
         {
             sorted_flag = 0;
@@ -94,18 +105,19 @@ int main(int argc, char const *argv[]) {
     
     /* initialize data locally */
     init(rawFloatData, DATANUM);
+    std::cout << "Data initialized." << std::endl;
     
     double original_time, speedup_time;
     double speedup_ratio;
 
     /* original time test */
     std::cout << "--- Original version ---" << std::endl;
-    original_time = timeTest(rawFloatData, DATANUM, original_result, run_original, 5);
+    original_time = timeTest(rawFloatData, DATANUM, original_result, run_original, TEST_NUM);
     std::cout << std::endl;
 
     /* speedup time test */
     std::cout << "--- Speedup version ---" << std::endl;
-    speedup_time = timeTest(rawFloatData, DATANUM, speedup_result, run_speedup, 5);
+    speedup_time = timeTest(rawFloatData, DATANUM, speedup_result, run_speedup, TEST_NUM);
     std::cout << std::endl;
 
     /* speedup ratio */
