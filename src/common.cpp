@@ -1,7 +1,8 @@
 #include <iostream>
 #include <ctime>
 //#include <algorithm>
-#include "calculation.h"
+#include "original.h"
+#include "speedup.h"
 #include "common.h"
 
 #define TIME_RECORD 0  // define whether to recored the time of each part
@@ -85,7 +86,7 @@ void run_original(const float data[], const int len, float& sum_value, float& ma
 #else
     sum_value = sum(data, len);
     max_value = max(data, len);
-    sort(data, len, result);
+    // sort(data, len, result);
 #endif
 }
 
@@ -94,5 +95,5 @@ void run_speedup(const float data[], const int len, float& sum_value, float& max
     // TODO: Distinguish client and server mode.
     sum_value = sumSpeedUp(data, len);
     max_value = maxSpeedUp(data, len);
-    sortSpeedUp(data, len, result);
+    // sortSpeedUp(data, len, result);
 }

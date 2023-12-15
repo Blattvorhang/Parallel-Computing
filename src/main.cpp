@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
 #include <ctime>
-#include "calculation.h"
+#include "original.h"
+#include "speedup.h"
 #include "common.h"
 
 Mode mode;
@@ -9,6 +10,14 @@ Mode mode;
 // data to be tested (too large to be allocated on stack)
 static float rawFloatData[DATANUM];
 static float original_result[DATANUM], speedup_result[DATANUM];
+
+
+void init(float data[]) {
+    // TODO: shuffle the data
+    for (size_t i = 0; i < DATANUM; i++)
+        rawFloatData[i] = float(i + 1);
+}
+
 
 /**
  * @brief Test the time consumed by a function.
@@ -84,20 +93,19 @@ int main(int argc, char const *argv[]) {
     std::cout << std::endl;
     
     /* initialize data locally */
-    for (size_t i = 0; i < DATANUM; i++)
-        rawFloatData[i] = float(i + 1);
+    init(rawFloatData);
     
     double original_time, speedup_time;
     double speedup_ratio;
 
     /* original time test */
     std::cout << "--- Original version ---" << std::endl;
-    original_time = timeTest(rawFloatData, DATANUM, original_result, run_original);
+    original_time = timeTest(rawFloatData, DATANUM, original_result, run_original, 5);
     std::cout << std::endl;
 
     /* speedup time test */
     std::cout << "--- Speedup version ---" << std::endl;
-    speedup_time = timeTest(rawFloatData, DATANUM, speedup_result, run_speedup);
+    speedup_time = timeTest(rawFloatData, DATANUM, speedup_result, run_speedup, 5);
     std::cout << std::endl;
 
     /* speedup ratio */

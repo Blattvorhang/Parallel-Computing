@@ -1,5 +1,4 @@
 #include "common.h"
-#include "calculation.h"
 
 
 float sum(const float data[], const int len) {

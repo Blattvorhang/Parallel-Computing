@@ -7,8 +7,22 @@ project(SpeedUp_Computing)
 # set the C++ standard to C++ 14
 set(CMAKE_CXX_STANDARD 14)
 
+# set the build type to Release
+# set(CMAKE_BUILD_TYPE "Release")
+
 # set the output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# find OpenMP
+find_package(OpenMP REQUIRED)
+
+if(OPENMP_FOUND)
+    message("OpenMP found")
+    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS})
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS})
+else()
+    message("OpenMP not found")
+endif()
 
 # add the executable
 add_executable(${PROJECT_NAME}
@@ -16,6 +30,7 @@ add_executable(${PROJECT_NAME}
         src/original.cpp
         src/speedup.cpp
         src/common.cpp
+        src/net.cpp
 )
 
 # add the include directory
