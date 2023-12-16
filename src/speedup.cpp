@@ -1,6 +1,5 @@
 #include <omp.h>
 #include <thread>
-#include <iostream>
 #include "common.h"
 
 extern Mode mode;

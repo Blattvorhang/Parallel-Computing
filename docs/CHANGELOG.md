@@ -126,3 +126,27 @@ Result is sorted.
 Speedup ratio: 4.61661
 ```
 加速比并未达到理想中的7左右，怀疑是归并排序复制数据部分占用了太多时间，可以考虑更换排序算法。
+
+于是我测试性地把自己写的归并排序改成了`std::sort`，分成64个部分并行地排序，最后合并起来，结果如下：
+```
+--- Original version ---
+sum time consumed: 1.2942s
+max time consumed: 1.44973s
+sort time consumed: 103.683s
+Time consumed: 106.427s
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+sum time consumed: 0.227853s
+max time consumed: 0.282442s
+sort time consumed: 12.6314s
+Time consumed: 13.1418s
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+Speedup ratio: 8.0983
+```
+所以确实可以考虑在排序上面下功夫。
