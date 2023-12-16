@@ -26,11 +26,12 @@ endif()
 
 # add the executable
 add_executable(${PROJECT_NAME}
-        src/main.cpp
-        src/original.cpp
-        src/speedup.cpp
-        src/common.cpp
-        src/net.cpp
+    src/main.cpp
+    src/original.cpp
+    src/speedup.cpp
+    src/common.cpp
+    src/client.cpp
+    src/server.cpp
 )
 
 # add the include directory
