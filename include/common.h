@@ -13,7 +13,8 @@ enum Mode {
     SERVER
 };
 
-void merge(float arr[], const float left[], const float right[], const int left_size, const int right_size, const int copy = 1);
+
+void merge(float arr[], const int left_size, const int right_size);
 void mergeSort(float arr[], const int size);
 
 void run_original(const float data[], const int len, float& sum_value, float& max_value, float result[]);

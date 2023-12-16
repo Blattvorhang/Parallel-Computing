@@ -99,3 +99,30 @@ max: 9.33377
 Speedup ratio: 7.89407
 ```
 可以发现用时差别不大（好像还变快了，怀疑是前面`float`转`double`花了额外的时间），而加速前后的结果不再有差别。
+
+# 12.16 (Blattvorhang)
+并行化归并排序思路：
+递归地把数组拆成`MAX_THREADS`份进行归并排序，随后两两合并，排序和合并均并行执行。考虑到合并过程也占用线程，应该拆成`MAX_THREADS / 2`份。
+实测CPU跑满，结果如下：
+```
+--- Original version ---
+sum time consumed: 1.3555s
+max time consumed: 1.49854s
+sort time consumed: 108.965s
+Time consumed: 111.82s
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+sum time consumed: 0.295863s
+max time consumed: 0.314429s
+sort time consumed: 23.6107s
+Time consumed: 24.2212s
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+Speedup ratio: 4.61661
+```
+加速比并未达到理想中的7左右，怀疑是归并排序复制数据部分占用了太多时间，可以考虑更换排序算法。

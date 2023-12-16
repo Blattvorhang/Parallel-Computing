@@ -24,6 +24,7 @@ void init(float data[], const int len) {
 #if INIT_SHUFFLE
     // Use the same seed for random number generator to ensure the same result
     std::mt19937 rng(42);
+    std::cout << "Shuffling data..." << std::endl;
     std::shuffle(rawFloatData, rawFloatData + len, rng);
 #endif
 }
@@ -101,14 +102,16 @@ int main(int argc, char const *argv[]) {
         std::cerr << "Unknown option: " << arg << std::endl;
         return 1;
     }
-    std::cout << std::endl;
     
     /* initialize data locally */
+    std::cout << "Initializing data..." << std::endl;
     init(rawFloatData, DATANUM);
     std::cout << "Data initialized." << std::endl;
     
     double original_time, speedup_time;
     double speedup_ratio;
+
+    std::cout << "Time test begins." << std::endl << std::endl;
 
     /* original time test */
     std::cout << "--- Original version ---" << std::endl;

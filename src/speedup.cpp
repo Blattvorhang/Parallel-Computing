@@ -1,5 +1,6 @@
 #include <omp.h>
 #include <thread>
+#include <iostream>
 #include "common.h"
 
 extern Mode mode;
@@ -19,11 +20,6 @@ inline float max(float a, float b) {
 }
 
 
-inline int min(int a, int b) {
-    return a < b ? a : b;
-}
-
-
 float maxSpeedUp(const float data[], const int len) {
     if (len <= 0)
         return 0;
@@ -38,59 +34,41 @@ float maxSpeedUp(const float data[], const int len) {
 }
 
 
-void mergeThread(
-    float result[],
-    const float left[],
-    const float right[],
-    const int left_size,
-    const int right_size,
-    std::thread& left_thread,
-    std::thread& right_thread
-) {
-    // Wait for the left and right array to be sorted
-    left_thread.join();
-    right_thread.join();
-    merge(result, left, right, left_size, right_size);
+inline int log2(int x) {
+    int result = 0;
+    while (x >>= 1)
+        result++;
+    return result;
+}
+
+
+/**
+ * 
+ * @brief This function sorts the input array in-place. It splits the array into two halves, 
+ *        and sorts each half in a separate thread. Then, it merges the two halves back together.
+ * @param arr The array to be sorted.
+ * @param len The length of the array.
+ * @param level The level of parallelism. If level is 0 or the array length is 1, 
+ *              the function falls back to regular sort.
+ */
+void parallelSort(float arr[], const int len, const int level) {
+    if (level == 0 || len <= 1) {
+        mergeSort(arr, len);
+        return;
+    }
+    const int mid = len / 2;
+    std::thread t1(parallelSort, arr, mid, level - 1);
+    std::thread t2(parallelSort, arr + mid, len - mid, level - 1);
+    t1.join();
+    t2.join();
+    merge(arr, mid, len - mid);
 }
 
 
 void sortSpeedUp(const float data[], const int len, float result[]) {
-    // if (mode == LOCAL) {
-    //     /* Complete binary tree */
-    //     // The real number of running threads is less or equal to MAX_THREADS
-    //     std::thread threads[2 * MAX_THREADS];
-    //     int thread_data_size = len / MAX_THREADS;
-    //     int level_start = MAX_THREADS;  // The start index of the current level
-    //     int array_len;  // The length of the array to be sorted
-
-    //     // Guarantee each leaf node is sorted
-    //     for (int i = 0; i < MAX_THREADS; i++) {
-    //         array_len = min(thread_data_size, len - i * thread_data_size);
-    //         threads[level_start] = std::thread(
-    //             mergeSort,
-    //             data + i * thread_data_size,
-    //             array_len,
-    //             result + i * thread_data_size
-    //         );
-    //     }
-    //     level_start /= 2;
-
-    //     // Merge each level
-    //     while (level_start > 0) {
-    //         for (int i = level_start; i < 2 * level_start; i++) {
-    //             array_len = min(thread_data_size, len - (i - level_start) * thread_data_size);
-    //             threads[i] = std::thread(
-    //                 mergeThread,
-    //                 result + (i - level_start) * thread_data_size,
-    //                 result + (i - level_start) * thread_data_size,
-    //                 result + (i - level_start + 1) * thread_data_size,
-    //                 thread_data_size,
-    //                 array_len,
-    //                 std::ref(threads[2 * i]),
-    //                 std::ref(threads[2 * i + 1])
-    //             );
-    //         }
-    //         level_start /= 2;
-    //     }
-    // }
+    if (mode == LOCAL) {
+        for (int i = 0; i < len; i++)
+            result[i] = data[i];
+        parallelSort(result, len, log2(MAX_THREADS) - 1);
+    }
 }
