@@ -1,5 +1,6 @@
 #include <omp.h>
 #include <thread>
+#include <algorithm>
 #include "common.h"
 
 extern Mode mode;
@@ -42,25 +43,51 @@ inline int log2(int x) {
 
 
 /**
- * 
+ * @brief This is an auxiliary function for parallelSort. It sorts the input array in-place.
+ *        the result is stored alternately in arr1 and arr2 for faster merging.
+ * @param arr1 The array to be sorted.
+ * @param arr2 The array to be sorted.
+ * @param len The length of the array.
+ * @param level The level of parallelism. If level is 0, the function falls back to regular sort.
+ */
+void parallelSortAux(float arr1[], float arr2[], const int len, const int level) {
+    if (level == 0) {
+        mergeSort(arr1, len);
+        // std::sort(arr1, arr1 + len);
+        return;
+    }
+
+    const int mid = len / 2;
+    std::thread t1(parallelSortAux, arr1, arr2, mid, level - 1);
+    std::thread t2(parallelSortAux, arr1 + mid, arr2 + mid, len - mid, level - 1);
+
+    /* wait for the two arrays to be sorted */
+    t1.join();
+    t2.join();
+
+    /* merge the two halves alternately */
+    if (level % 2)
+        merge(arr2, arr1, arr1 + mid, mid, len - mid);
+    else
+        merge(arr1, arr2, arr2 + mid, mid, len - mid);
+}
+
+
+/**
  * @brief This function sorts the input array in-place. It splits the array into two halves, 
  *        and sorts each half in a separate thread. Then, it merges the two halves back together.
  * @param arr The array to be sorted.
  * @param len The length of the array.
- * @param level The level of parallelism. If level is 0 or the array length is 1, 
- *              the function falls back to regular sort.
+ * @param level The level of parallelism. If level is 0, the function falls back to regular sort.
  */
 void parallelSort(float arr[], const int len, const int level) {
-    if (level == 0 || len <= 1) {
-        mergeSort(arr, len);
-        return;
+    float *result = arr;
+    float *temp = new float[len];
+    parallelSortAux(arr, temp, len, level);
+    if (level % 2) {
+        for (int i = 0; i < len; i++)
+            arr[i] = temp[i];
     }
-    const int mid = len / 2;
-    std::thread t1(parallelSort, arr, mid, level - 1);
-    std::thread t2(parallelSort, arr + mid, len - mid, level - 1);
-    t1.join();
-    t2.join();
-    merge(arr, mid, len - mid);
 }
 
 
