@@ -150,3 +150,64 @@ Result is sorted.
 Speedup ratio: 8.0983
 ```
 所以确实可以考虑在排序上面下功夫。
+
+# 12.17 (Blattvorhang)
+对`merge`过程做了优化。由于是并行地对数组进行排序，最后还要有一个`merge`过程把子数组合并为一整个有序的数组，这个过程涉及大量数据的复制，之前是用一个`temp`数组来存，先合并到`temp`中，再写回`arr`。举例如下：
+```
+把一个数组A拆分为八个部分：
+A1 A2 A3 A4 A5 A6 A7 A8
+分别对每个部分排好序后，合并到数组B中：
+B12 B34 B56 B78
+接下来把B复制到A中：
+A12 A34 A56 A78
+随后再把A继续合并到B：
+B1234 B5678
+接下来把B复制到A中：
+A1234 A5678
+把A合并到B：
+B12345678
+把B复制到A中：
+A12345678
+```
+上面的例子充分说明了时间的浪费，故现在考虑两个数组`arr1`和`arr2`，交错地来作为存结果的数组，即：
+```
+把一个数组A拆分为八个部分：
+A1 A2 A3 A4 A5 A6 A7 A8
+分别对每个部分排好序后，合并到数组B中：
+B12 B34 B56 B78
+接下来把B合并到A中：
+A1234 A5678
+把A合并到B中：
+B12345678
+最后一步把B复制回A即可：
+A12345678
+```
+可以发现，先前需要6步的合并过程，现在优化到只需要4步了，对于`MAX_THREAD = 64`的情况，带来的优化只会更加明显。但是需要注意什么情况下需要把B复制回A，什么情况不需要，这需要对层数`level`的奇偶性进行判断。
+
+优化后的数据如下：
+```
+--- Original version ---
+Sum time consumed: 1.86367
+Max time consumed: 2.23014
+Sort time consumed: 153.145
+Total time consumed: 157.239
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+Sum time consumed: 0.283588
+Max time consumed: 0.310064
+Sort time consumed: 25.9752
+Total time consumed: 26.5689
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+Sum speedup ratio: 6.57173
+Max speedup ratio: 7.19251
+Sort speedup ratio: 5.89581
+Total speedup ratio: 5.91816
+```

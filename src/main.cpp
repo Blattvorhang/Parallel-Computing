@@ -39,24 +39,38 @@ void init(float data[], const int len) {
  * @param test_num The number of times to test, for calculating the average time. (default: 5)
  * @return The time consumed by the function.
  */
-double timeTest(const float data[],
-                const int len,
-                float result[],
-                void (*func)(const float[], const int, float&, float&, float[]),
-                const int test_num = 5) {
-
+double timeTest(
+    const float data[],
+    const int len,
+    float result[],
+    void (*func)(const float[], const int, float&, float&, float[], double&, double&, double&),
+    double& sum_time,
+    double& max_time,
+    double& sort_time,
+    const int test_num = 5
+) {
     timespec start, end;
     double time_consumed;
+    double single_sum_time, single_max_time, single_sort_time;
+    double total_sum_time = 0, total_max_time = 0, total_sort_time = 0;
     float sum_value, max_value;
 
-    clock_gettime(CLOCK_REALTIME, &start);
-    for (int i = 0; i < test_num; i++)
-        func(data, len, sum_value, max_value, result);
-    clock_gettime(CLOCK_REALTIME, &end);
-    time_consumed = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
-    time_consumed /= test_num;
+    for (int i = 0; i < test_num; i++) {
+        func(data, len, sum_value, max_value, result, single_sum_time, single_max_time, single_sort_time);
+        total_sum_time += single_sum_time;
+        total_max_time += single_max_time;
+        total_sort_time += single_sort_time;
+    }
 
-    std::cout << "Time consumed: " << time_consumed << "s" << std::endl;
+    sum_time = total_sum_time / test_num;
+    max_time = total_max_time / test_num;
+    sort_time = total_sort_time / test_num;
+    time_consumed = sum_time + max_time + sort_time;
+    std::cout << "Sum time consumed: " << sum_time << std::endl;
+    std::cout << "Max time consumed: " << max_time << std::endl;
+    std::cout << "Sort time consumed: " << sort_time << std::endl;
+    std::cout << "Total time consumed: " << time_consumed << std::endl;
+    std::cout << std::endl;
 
     /* last time result */
     std::cout << "sum: " << sum_value << std::endl;
@@ -109,23 +123,51 @@ int main(int argc, char const *argv[]) {
     std::cout << "Data initialized." << std::endl;
     
     double original_time, speedup_time;
+    double original_sum_time, original_max_time, original_sort_time;
+    double speedup_sum_time, speedup_max_time, speedup_sort_time;
+    double sum_speedup_ratio, max_speedup_ratio, sort_speedup_ratio;
     double speedup_ratio;
 
     std::cout << "Time test begins." << std::endl << std::endl;
 
     /* original time test */
     std::cout << "--- Original version ---" << std::endl;
-    original_time = timeTest(rawFloatData, DATANUM, original_result, run_original, TEST_NUM);
+    original_time = timeTest(
+        rawFloatData,
+        DATANUM,
+        original_result,
+        run_original,
+        original_sum_time,
+        original_max_time,
+        original_sort_time,
+        TEST_NUM
+    );
     std::cout << std::endl;
 
     /* speedup time test */
     std::cout << "--- Speedup version ---" << std::endl;
-    speedup_time = timeTest(rawFloatData, DATANUM, speedup_result, run_speedup, TEST_NUM);
+    speedup_time = timeTest(
+        rawFloatData,
+        DATANUM,
+        speedup_result,
+        run_speedup,
+        speedup_sum_time,
+        speedup_max_time,
+        speedup_sort_time,
+        TEST_NUM
+    );
     std::cout << std::endl;
 
     /* speedup ratio */
+    std::cout << "--- Speedup ratio ---" << std::endl;
+    sum_speedup_ratio = original_sum_time / speedup_sum_time;
+    max_speedup_ratio = original_max_time / speedup_max_time;
+    sort_speedup_ratio = original_sort_time / speedup_sort_time;
     speedup_ratio = original_time / speedup_time;
-    std::cout << "Speedup ratio: " << speedup_ratio << std::endl;
+    std::cout << "Sum speedup ratio: " << sum_speedup_ratio << std::endl;
+    std::cout << "Max speedup ratio: " << max_speedup_ratio << std::endl;
+    std::cout << "Sort speedup ratio: " << sort_speedup_ratio << std::endl;
+    std::cout << "Total speedup ratio: " << speedup_ratio << std::endl;
 
     return 0;
 }
