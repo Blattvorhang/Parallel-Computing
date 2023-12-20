@@ -211,3 +211,6 @@ Max speedup ratio: 7.19251
 Sort speedup ratio: 5.89581
 Total speedup ratio: 5.91816
 ```
+
+# 12.20 (Blattvorhang)
+开启两个终端，一个以client运行，一个以server运行，用回环地址`127.0.0.1:8080`连接成功。
