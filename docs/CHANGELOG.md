@@ -81,7 +81,7 @@ max: 9.33377
 
 Speedup ratio: 7.46469
 ```
-由于log(sqrt(data))的输入和返回参数都是`double`类型，主要耗时在这两个函数而非加法上，故加法采用`double`并不会产生较大的时间损失。
+由于`log(sqrt(data))`的输入和返回参数都是`double`类型，主要耗时在这两个函数而非加法上，故加法采用`double`并不会产生较大的时间损失。
 `sum_value`改用`double`类型后，结果如下：
 ```
 Running in local mode.
