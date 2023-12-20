@@ -6,6 +6,8 @@
 #include "original.h"
 #include "speedup.h"
 #include "common.h"
+#include "client.h"
+#include "server.h"
 
 #define INIT_SHUFFLE 1  // define whether to shuffle the data before sorting
 #define TEST_NUM 1  // number of times to test, for calculating the average time
@@ -122,6 +124,21 @@ int main(int argc, char const *argv[]) {
     init(rawFloatData, DATANUM);
     std::cout << "Data initialized." << std::endl;
     
+    if (mode == CLIENT) {
+        int ret = clientConnect();
+        if (ret == -1) {
+            std::cerr << "Error connecting to server" << std::endl;
+            return 1;
+        }
+    } else if (mode == SERVER) {
+        int ret = serverConnect();
+        if (ret == -1) {
+            std::cerr << "Error creating server" << std::endl;
+            return 1;
+        }
+        return 0;
+    }
+
     double original_time, speedup_time;
     double original_sum_time, original_max_time, original_sort_time;
     double speedup_sum_time, speedup_max_time, speedup_sort_time;
