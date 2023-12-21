@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <regex>
 #include <ctime>
 #include <random>
 #include <algorithm>  // only for std::shuffle
@@ -122,7 +123,19 @@ int main(int argc, char const *argv[]) {
             return 1;
         }
         server_ip = argv[2];
-        server_port = std::stoi(argv[3]);
+        const std::regex ip_regex(
+            R"(^((25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\.){3}(25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)$)"
+        );
+        if (!std::regex_match(server_ip, ip_regex)) {
+            std::cerr << "Invalid server IP." << std::endl;
+            return 1;
+        }
+        try {
+            server_port = std::stoi(argv[3]);
+        } catch (const std::exception& e) {
+            std::cerr << "Invalid server port." << std::endl;
+            return 1;
+        }
         std::cout << "Running in client mode." << std::endl;
         std::cout << "Server IP: " << server_ip << ", Server Port: " << server_port << std::endl;
         mode = CLIENT;
@@ -131,7 +144,12 @@ int main(int argc, char const *argv[]) {
             std::cerr << "Server mode requires server port." << std::endl;
             return 1;
         }
-        server_port = std::stoi(argv[2]);
+        try {
+            server_port = std::stoi(argv[2]);
+        } catch (const std::exception& e) {
+            std::cerr << "Invalid server port." << std::endl;
+            return 1;
+        }
         std::cout << "Running in server mode." << std::endl;
         std::cout << "Server Port: " << server_port << std::endl;
         mode = SERVER;
