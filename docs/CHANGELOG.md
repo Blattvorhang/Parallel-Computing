@@ -214,3 +214,9 @@ Total speedup ratio: 5.91816
 
 # 12.20 (Blattvorhang)
 开启两个终端，一个以client运行，一个以server运行，用回环地址`127.0.0.1:8080`连接成功。
+
+# 12.21 (Blattvorhang)
+把服务器的IP地址和端口号都放到了命令行参数中，避免反复编译浪费时间。包含错误处理。
+```
+Usage: [-l | --local] [-c | --client <server_ip> <server_port>] [-s | --server <server_port>]
+```
