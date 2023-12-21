@@ -1,3 +1,3 @@
 #pragma once
 
-int serverConnect();
+int serverConnect(const int server_port);

@@ -5,11 +5,10 @@
 #include <netinet/in.h>
 
 
-const int SERVER_PORT = 8080;
 const int BUFFER_SIZE = 1024;
 
 // Template for server
-int serverConnect() {
+int serverConnect(const int server_port) {
     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket == -1) {
         std::cerr << "Error creating socket" << std::endl;
@@ -19,7 +18,7 @@ int serverConnect() {
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port = htons(SERVER_PORT);
+    serverAddr.sin_port = htons(server_port);
 
     if (bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
         std::cerr << "Error binding socket" << std::endl;
@@ -33,7 +32,7 @@ int serverConnect() {
         return -1;
     }
 
-    std::cout << "Server listening on port " << SERVER_PORT << "..." << std::endl;
+    std::cout << "Server listening on port " << server_port << "..." << std::endl;
 
     sockaddr_in clientAddr;
     socklen_t clientAddrLen = sizeof(clientAddr);

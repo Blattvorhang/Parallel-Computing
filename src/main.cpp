@@ -98,21 +98,42 @@ double timeTest(
 
 
 int main(int argc, char const *argv[]) {
-    /* check arguments */
+    /**
+     * Usage: [-l | --local]
+     *        [-c | --client <server_ip> <server_port>]
+     *        [-s | --server <server_port>]
+     *        [-t | --test <test_num>]
+     *        [-h | --help]
+     */
     if (argc < 2) {
-        std::cerr << "Usage: " << " [-l | --local] [-c | --client] [-s | --server]" << std::endl;
+        std::cerr << "Usage: [-l | --local] [-c | --client <server_ip> <server_port>] [-s | --server <server_port>]" << std::endl;
         return 1;
     }
 
     std::string arg = argv[1];
+    std::string server_ip;
+    int server_port;
     if (arg == "-l" || arg == "--local") {
         std::cout << "Running in local mode." << std::endl;
         mode = LOCAL;
     } else if (arg == "-c" || arg == "--client") {
+        if (argc < 4) {
+            std::cerr << "Client mode requires server IP and port." << std::endl;
+            return 1;
+        }
+        server_ip = argv[2];
+        server_port = std::stoi(argv[3]);
         std::cout << "Running in client mode." << std::endl;
+        std::cout << "Server IP: " << server_ip << ", Server Port: " << server_port << std::endl;
         mode = CLIENT;
     } else if (arg == "-s" || arg == "--server") {
+        if (argc < 3) {
+            std::cerr << "Server mode requires server port." << std::endl;
+            return 1;
+        }
+        server_port = std::stoi(argv[2]);
         std::cout << "Running in server mode." << std::endl;
+        std::cout << "Server Port: " << server_port << std::endl;
         mode = SERVER;
     } else {
         std::cerr << "Unknown option: " << arg << std::endl;
@@ -124,14 +145,15 @@ int main(int argc, char const *argv[]) {
     init(rawFloatData, DATANUM);
     std::cout << "Data initialized." << std::endl;
     
+    /* connect to server */
     if (mode == CLIENT) {
-        int ret = clientConnect();
+        int ret = clientConnect(server_ip.c_str(), server_port);
         if (ret == -1) {
             std::cerr << "Error connecting to server" << std::endl;
             return 1;
         }
     } else if (mode == SERVER) {
-        int ret = serverConnect();
+        int ret = serverConnect(server_port);
         if (ret == -1) {
             std::cerr << "Error creating server" << std::endl;
             return 1;
