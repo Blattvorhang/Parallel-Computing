@@ -117,11 +117,14 @@ int main(int argc, char const *argv[]) {
     if (arg == "-l" || arg == "--local") {
         std::cout << "Running in local mode." << std::endl;
         mode = LOCAL;
-    } else if (arg == "-c" || arg == "--client") {
+    }
+    else if (arg == "-c" || arg == "--client") {
         if (argc < 4) {
             std::cerr << "Client mode requires server IP and port." << std::endl;
             return 1;
         }
+
+        /* check server IP */
         server_ip = argv[2];
         const std::regex ip_regex(
             R"(^((25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)\.){3}(25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|\d)$)"
@@ -130,30 +133,38 @@ int main(int argc, char const *argv[]) {
             std::cerr << "Invalid server IP." << std::endl;
             return 1;
         }
+
+        /* check server port */
         try {
             server_port = std::stoi(argv[3]);
         } catch (const std::exception& e) {
             std::cerr << "Invalid server port." << std::endl;
             return 1;
         }
+
         std::cout << "Running in client mode." << std::endl;
         std::cout << "Server IP: " << server_ip << ", Server Port: " << server_port << std::endl;
         mode = CLIENT;
-    } else if (arg == "-s" || arg == "--server") {
+    }
+    else if (arg == "-s" || arg == "--server") {
         if (argc < 3) {
             std::cerr << "Server mode requires server port." << std::endl;
             return 1;
         }
+
+        /* check server port */
         try {
             server_port = std::stoi(argv[2]);
         } catch (const std::exception& e) {
             std::cerr << "Invalid server port." << std::endl;
             return 1;
         }
+
         std::cout << "Running in server mode." << std::endl;
         std::cout << "Server Port: " << server_port << std::endl;
         mode = SERVER;
-    } else {
+    } 
+    else {
         std::cerr << "Unknown option: " << arg << std::endl;
         return 1;
     }
