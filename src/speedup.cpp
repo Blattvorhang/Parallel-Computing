@@ -15,7 +15,8 @@ float sumSpeedUp(const float data[], const int len) {
 }
 
 
-inline float max(float a, float b) {
+template <typename T>
+inline T max(T a, T b) {
     return a > b ? a : b;
 }
 
