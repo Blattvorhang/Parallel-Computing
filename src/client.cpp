@@ -6,9 +6,6 @@
 #include <arpa/inet.h>
 
 
-const char* SERVER_IP = "127.0.0.1";
-const int SERVER_PORT = 8080;
-
 // Template for client
 int clientConnect(const char* server_ip, const int server_port) {
     int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -19,8 +16,8 @@ int clientConnect(const char* server_ip, const int server_port) {
 
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
-    serverAddr.sin_port = htons(SERVER_PORT);
+    serverAddr.sin_addr.s_addr = inet_addr(server_ip);
+    serverAddr.sin_port = htons(server_port);
 
     if (connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
         std::cerr << "Error connecting to server" << std::endl;
