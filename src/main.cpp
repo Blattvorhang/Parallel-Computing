@@ -13,7 +13,7 @@
 #define INIT_SHUFFLE 1  // define whether to shuffle the data before sorting
 #define TEST_NUM 1  // number of times to test, for calculating the average time
 
-Mode mode;
+RunningMode mode;
 
 // data to be tested (too large to be allocated on stack)
 static float rawFloatData[DATANUM];
@@ -26,7 +26,8 @@ void init(float data[], const int len) {
 
 #if INIT_SHUFFLE
     // Use the same seed for random number generator to ensure the same result
-    std::mt19937 rng(42);
+    const uint_fast32_t seed = 42;
+    std::mt19937 rng(seed);
     std::cout << "Shuffling data..." << std::endl;
     std::shuffle(rawFloatData, rawFloatData + len, rng);
 #endif
@@ -38,36 +39,35 @@ void init(float data[], const int len) {
  * @param data The array to be calculated.
  * @param len The length of the data.
  * @param result The result of the sorted data.
- * @param func The function to be tested.
- * @param test_num The number of times to test, for calculating the average time. (default: 5)
+ * @param sum_time The time consumed by sum function.
+ * @param max_time The time consumed by max function.
+ * @param sort_time The time consumed by sort function.
+ * @param ptype The type of processing.
  * @return The time consumed by the function.
  */
 double timeTest(
     const float data[],
     const int len,
     float result[],
-    void (*func)(const float[], const int, float&, float&, float[], double&, double&, double&),
     double& sum_time,
     double& max_time,
     double& sort_time,
-    const int test_num = 5
+    const ProcessingType ptype
 ) {
     timespec start, end;
     double time_consumed;
-    double single_sum_time, single_max_time, single_sort_time;
-    double total_sum_time = 0, total_max_time = 0, total_sort_time = 0;
     float sum_value, max_value;
 
-    for (int i = 0; i < test_num; i++) {
-        func(data, len, sum_value, max_value, result, single_sum_time, single_max_time, single_sort_time);
-        total_sum_time += single_sum_time;
-        total_max_time += single_max_time;
-        total_sort_time += single_sort_time;
+    switch (ptype)
+    {
+        case ORIGINAL:
+            run_original(data, len, sum_value, max_value, result, sum_time, max_time, sort_time);
+            break;
+        case SPEEDUP:
+            run_speedup(data, len, sum_value, max_value, result, sum_time, max_time, sort_time);
+            break;
     }
-
-    sum_time = total_sum_time / test_num;
-    max_time = total_max_time / test_num;
-    sort_time = total_sort_time / test_num;
+    
     time_consumed = sum_time + max_time + sort_time;
     std::cout << "Sum time consumed: " << sum_time << std::endl;
     std::cout << "Max time consumed: " << max_time << std::endl;
@@ -103,8 +103,6 @@ int main(int argc, char const *argv[]) {
      * Usage: [-l | --local]
      *        [-c | --client <server_ip> <server_port>]
      *        [-s | --server <server_port>]
-     *        [-t | --test <test_num>]
-     *        [-h | --help]
      */
     if (argc < 2) {
         std::cerr << "Usage: [-l | --local] [-c | --client <server_ip> <server_port>] [-s | --server <server_port>]" << std::endl;
@@ -204,11 +202,10 @@ int main(int argc, char const *argv[]) {
         rawFloatData,
         DATANUM,
         original_result,
-        run_original,
         original_sum_time,
         original_max_time,
         original_sort_time,
-        TEST_NUM
+        ORIGINAL
     );
     std::cout << std::endl;
 
@@ -218,11 +215,10 @@ int main(int argc, char const *argv[]) {
         rawFloatData,
         DATANUM,
         speedup_result,
-        run_speedup,
         speedup_sum_time,
         speedup_max_time,
         speedup_sort_time,
-        TEST_NUM
+        SPEEDUP
     );
     std::cout << std::endl;
 

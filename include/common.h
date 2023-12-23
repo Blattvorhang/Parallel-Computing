@@ -7,10 +7,15 @@
 #define DATANUM (SUBDATANUM * MAX_THREADS)   /* total number of data */
 #define ACCESS(data) log(sqrt(data))
 
-enum Mode {
+enum RunningMode {
     LOCAL,
     CLIENT,
     SERVER
+};
+
+enum ProcessingType {
+    ORIGINAL,
+    SPEEDUP
 };
 
 

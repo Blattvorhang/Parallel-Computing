@@ -5,7 +5,7 @@
 #include "speedup.h"
 #include "common.h"
 
-extern Mode mode;
+extern RunningMode mode;
 
 /**
  * @brief Merge two sorted arrays into one.

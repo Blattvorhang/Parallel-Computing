@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "common.h"
 
-extern Mode mode;
+extern RunningMode mode;
 
 float sumSpeedUp(const float data[], const int len) {
     double sum_value = 0;
