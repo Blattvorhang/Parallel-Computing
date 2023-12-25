@@ -1,6 +1,5 @@
 #include <omp.h>
 #include <thread>
-#include <algorithm>
 #include "common.h"
 
 extern RunningMode mode;
@@ -54,7 +53,6 @@ inline int log2(int x) {
 void parallelSortAux(float arr1[], float arr2[], const int len, const int level) {
     if (level == 0) {
         mergeSort(arr1, len);
-        // std::sort(arr1, arr1 + len);
         return;
     }
 

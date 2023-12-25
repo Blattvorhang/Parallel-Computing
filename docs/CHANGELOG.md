@@ -220,3 +220,16 @@ Total speedup ratio: 5.91816
 ```
 Usage: [-l | --local] [-c | --client <server_ip> <server_port>] [-s | --server <server_port>]
 ```
+
+# 12.25 (Blattvorhang)
+12.16中提到的`std::sort`比我写的`mergeSort`快的问题，忽略了一个点，`std::sort`排序是对数组的数据本身进行访问，而我的`mergeSort`访问时还加了`ACCESS`宏函数，人为拖慢了时间。将`log(sqrt())`暂时去掉后，重新进行比较，得到的结果大致如下：
+
+| Algorithm  |  ACCESS(data) | Time Consumed/s |
+|:----------:|:-------------:|----------------:|
+| std::sort  |     data      |      41.50      |
+| mergeSort  |     data      |      52.27      |
+|parallelSort|     data      |       7.69      |
+| mergeSort  |log(sqrt(data))|     162.60      |
+|parallelSort|log(sqrt(data))|      26.25      |
+
+注意，以上测试结果均针对使用同一随机数种子`42`使用`std::shuffle`打乱后的数组，具有可比性。（终于为我的排序算法正名了！）
