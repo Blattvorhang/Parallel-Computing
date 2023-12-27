@@ -233,3 +233,12 @@ Usage: [-l | --local] [-c | --client <server_ip> <server_port>] [-s | --server <
 |parallelSort|log(sqrt(data))|      26.25      |
 
 注意，以上测试结果均针对使用同一随机数种子`42`使用`std::shuffle`打乱后的数组，具有可比性。（终于为我的排序算法正名了！）
+
+# 12.27 (Blattvorhag)
+GCC不支持SVML(Short Vector Math Library)，见如下链接：
+
+https://www.coder.work/article/815777
+
+https://www.codenong.com/51796612/
+
+有建议使用ICC。由于换编译器比较麻烦，SSE的使用暂时搁置。

@@ -1,9 +1,49 @@
-#include <omp.h>
+#include <omp.h>        // OpenMP
+#include <immintrin.h>  // SIMD
+#include <math.h>
 #include <thread>
 #include "common.h"
 
+#define SSE 0
+
 extern RunningMode mode;
 
+
+#if SSE
+/* SSE version */
+float sumSpeedUp(const float data[], const int len) {
+    __m128 sum_value_sse = _mm_setzero_ps();
+    float sum_value[4] = {0};
+    float access_value[4];
+    int i;
+
+    //#pragma omp parallel for num_threads(MAX_THREADS) reduction(_mm512_add_ps:sum_value_sse)
+    for (i = 0; i < len - 3; i += 4) {
+        // for (int j = 0; j < 4; j++) {
+        //     access_value[j] = ACCESS(data[i + j]);
+        // }
+        // __m128 data_sse = _mm_loadu_ps(access_value);
+        __m128 data_sse = _mm_loadu_ps(data + i);
+        __m128 access_sse = _mm_log_ps(_mm_sqrt_ps(data_sse));
+        sum_value_sse = _mm_add_ps(sum_value_sse, data_sse);
+    }
+    
+    _mm_storeu_ps(sum_value, sum_value_sse);
+
+    for (; i < len; i++) {
+        sum_value[0] += ACCESS(data[i]);
+    }
+
+    float final_sum = 0;
+    for (int i = 0; i < 4; i++) {
+        final_sum += sum_value[i];
+    }
+    return final_sum;
+}
+
+
+#else
+/* OpenMP version */
 float sumSpeedUp(const float data[], const int len) {
     double sum_value = 0;
     #pragma omp parallel for num_threads(MAX_THREADS) reduction(+:sum_value)
@@ -12,6 +52,7 @@ float sumSpeedUp(const float data[], const int len) {
     }
     return float(sum_value);
 }
+#endif
 
 
 template <typename T>
@@ -23,14 +64,15 @@ inline T max(T a, T b) {
 float maxSpeedUp(const float data[], const int len) {
     if (len <= 0)
         return 0;
-    float max_value = ACCESS(data[0]);
+    double max_value = ACCESS(data[0]);
     #pragma omp parallel for num_threads(MAX_THREADS) reduction(max:max_value)
     for (int i = 1; i < len; i++) {
-        if (ACCESS(data[i]) > max_value) {
-            max_value = ACCESS(data[i]);
+        double temp = ACCESS(data[i]);
+        if (temp > max_value) {
+            max_value = temp;
         }
     }
-    return max_value;
+    return float(max_value);
 }
 
 
