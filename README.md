@@ -42,7 +42,7 @@ float rawFloatData[DATANUM];
 ```cpp
 for (size_t i = 0; i < DATANUM; i++)//数据初始化
 {
-	rawFloatData[i] = float(i+1);
+    rawFloatData[i] = float(i+1);
 }
 ```
 
