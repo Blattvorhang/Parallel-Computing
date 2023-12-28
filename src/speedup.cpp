@@ -2,7 +2,6 @@
 #include <immintrin.h>  // SIMD
 #include <math.h>
 #include <thread>
-#include <iostream>
 #include "common.h"
 
 #define SSE 0
