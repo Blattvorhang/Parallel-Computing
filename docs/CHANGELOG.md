@@ -248,7 +248,11 @@ https://www.codenong.com/51796612/
 
 $$(a+b)+c\ne a+(b+c)$$
 
-因此加法使用[Kahan累加算法](https://oi-wiki.org/misc/kahan-summation/)来降低有限精度浮点数序列累加值误差，OpenMP需要同时对补偿变量`c`进行规约，即
+因此加法使用[Kahan累加算法](https://oi-wiki.org/misc/kahan-summation/)来降低有限精度浮点数序列累加值误差。
+
+同时，成对（并行）求和也减少了累计精度误差，这两种操作保证了`float`类型求和的精度。
+
+为了防止读写冲突，使用OpenMP时需要同时对补偿变量`c`进行规约，即
 
 ```cpp
 #pragma omp parallel for num_threads(MAX_THREADS) reduction(+:sum_value, c)

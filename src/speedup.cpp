@@ -2,6 +2,7 @@
 #include <immintrin.h>  // SIMD
 #include <math.h>
 #include <thread>
+#include <iostream>
 #include "common.h"
 
 #define SSE 0
@@ -43,7 +44,6 @@ float sumSpeedUp(const float data[], const int len) {
 
 
 #else
-/* OpenMP version */
 /**
  * @brief This function calculates the sum of the input array in parallel using OpenMP.
  *        It uses Kahan summation algorithm to reduce the error.
@@ -56,21 +56,17 @@ float sumSpeedUp(const float data[], const int len) {
     float c = 0.0f; // A running compensation for lost low-order bits.
     #pragma omp parallel for num_threads(MAX_THREADS) reduction(+:sum_value, c)
     for (int i = 0; i < len; i++) {
+        /* Kahan summation algorithm */
+        /* https://en.wikipedia.org/wiki/Kahan_summation_algorithm */
         float y = ACCESSF(data[i]) - c;
-        float t = sum_value + y; // Alas, sum is big, y small, so low-order digits of y are lost.
-        c = (t - sum_value) - y; // (t - sum) recovers the high-order part of y; subtracting y recovers -(low part of y)
-        sum_value = t; // Algebraically, c should always be zero. Beware overly-aggressive optimizing compilers!
-    }
-    // Next time around, the lost low part will be added to y in a fresh attempt.
+        float t = sum_value + y; // Low-order digits of y are lost.
+        c = (t - sum_value) - y; // -(low part of y)
+        sum_value = t;
+    }  // Next time around, the lost low part will be added to y in a fresh attempt.
+    sum_value -= c; // Correction after reduction of OpenMP.
     return sum_value;
 }
 #endif
-
-
-template <typename T>
-inline T max(T a, T b) {
-    return a > b ? a : b;
-}
 
 
 float maxSpeedUp(const float data[], const int len) {
@@ -85,14 +81,6 @@ float maxSpeedUp(const float data[], const int len) {
         }
     }
     return float(max_value);
-}
-
-
-inline int log2(int x) {
-    int result = 0;
-    while (x >>= 1)
-        result++;
-    return result;
 }
 
 
@@ -141,6 +129,14 @@ void parallelSort(float arr[], const int len, const int level) {
         for (int i = 0; i < len; i++)
             arr[i] = temp[i];
     }
+}
+
+
+inline int log2(int x) {
+    int result = 0;
+    while (x >>= 1)
+        result++;
+    return result;
 }
 
 
