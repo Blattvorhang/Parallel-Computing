@@ -1,6 +1,5 @@
 #include <omp.h>        // OpenMP
 #include <immintrin.h>  // SIMD
-#include <math.h>
 #include <thread>
 #include "common.h"
 
