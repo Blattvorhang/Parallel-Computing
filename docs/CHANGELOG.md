@@ -254,7 +254,7 @@ $$(a+b)+c\ne a+(b+c)$$
 #pragma omp parallel for num_threads(MAX_THREADS) reduction(+:sum_value, c)
 ```
 
-注意，虽然Kahan算法可以减少舍入误差，但它也会使代码变得更复杂，并可能降低代码的性能。但`float`计算比`double`更快，这一牺牲可以换取更高的速度，且最终结果不变，如下：
+注意，虽然Kahan算法可以减少舍入误差，但它也会使代码变得更复杂，并可能降低代码的性能。但`float`计算比`double`更快，这一牺牲可以换取更高的速度，且最终求和结果与`double`相同，如下：
 
 ```
 --- Original version ---
