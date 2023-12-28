@@ -242,3 +242,44 @@ https://www.coder.work/article/815777
 https://www.codenong.com/51796612/
 
 有建议使用ICC。由于换编译器比较麻烦，SSE的使用暂时搁置。
+
+# 12.28 (Blattvorhang)
+针对之前提到的问题，`rawFloatData`是一个`float`型数组，但套的函数`log(sqrt(data))`是针对`double`型的，由此想到将其改为`logf(sqrtf(data))`。注意浮点数加法不满足结合律，即
+
+$$(a+b)+c\ne a+(b+c)$$
+
+因此加法使用[Kahan累加算法](https://oi-wiki.org/misc/kahan-summation/)来降低有限精度浮点数序列累加值误差，OpenMP需要同时对补偿变量`c`进行规约，即
+
+```cpp
+#pragma omp parallel for num_threads(MAX_THREADS) reduction(+:sum_value, c)
+```
+
+注意，虽然Kahan算法可以减少舍入误差，但它也会使代码变得更复杂，并可能降低代码的性能。但`float`计算比`double`更快，这一牺牲可以换取更高的速度，且最终结果不变，如下：
+
+```
+--- Original version ---
+  Sum time consumed: 1.27743
+  Max time consumed: 1.48786
+ Sort time consumed: 107.956
+Total time consumed: 110.721
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+  Sum time consumed: 0.219453
+  Max time consumed: 0.256825
+ Sort time consumed: 23.6911
+Total time consumed: 24.1673
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup ratio ---
+  Sum speedup ratio: 5.82097
+  Max speedup ratio: 5.79331
+ Sort speedup ratio: 4.55682
+Total speedup ratio: 4.58144
+```

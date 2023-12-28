@@ -44,13 +44,25 @@ float sumSpeedUp(const float data[], const int len) {
 
 #else
 /* OpenMP version */
+/**
+ * @brief This function calculates the sum of the input array in parallel using OpenMP.
+ *        It uses Kahan summation algorithm to reduce the error.
+ * @param data The array to be calculated.
+ * @param len The length of the data.
+ * @return The sum of the array.
+ */
 float sumSpeedUp(const float data[], const int len) {
-    double sum_value = 0;
-    #pragma omp parallel for num_threads(MAX_THREADS) reduction(+:sum_value)
+    float sum_value = 0.0f;
+    float c = 0.0f; // A running compensation for lost low-order bits.
+    #pragma omp parallel for num_threads(MAX_THREADS) reduction(+:sum_value, c)
     for (int i = 0; i < len; i++) {
-        sum_value += ACCESS(data[i]);
+        float y = ACCESSF(data[i]) - c;
+        float t = sum_value + y; // Alas, sum is big, y small, so low-order digits of y are lost.
+        c = (t - sum_value) - y; // (t - sum) recovers the high-order part of y; subtracting y recovers -(low part of y)
+        sum_value = t; // Algebraically, c should always be zero. Beware overly-aggressive optimizing compilers!
     }
-    return float(sum_value);
+    // Next time around, the lost low part will be added to y in a fresh attempt.
+    return sum_value;
 }
 #endif
 
