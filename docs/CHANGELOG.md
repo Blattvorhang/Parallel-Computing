@@ -287,3 +287,6 @@ Result is sorted.
  Sort speedup ratio: 4.55682
 Total speedup ratio: 4.58144
 ```
+
+# 12.29 (Blattvorhang)
+修改了一些main函数的输入输出。发现数组不打乱加速比更大，怀疑可能是因为分支预测等，最终提交的报告、答辩等建议分打乱和不打乱两个版本的结果。

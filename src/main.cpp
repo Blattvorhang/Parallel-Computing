@@ -170,7 +170,7 @@ int main(int argc, char const *argv[]) {
     /* initialize data locally */
     std::cout << "Initializing data..." << std::endl;
     init(rawFloatData, DATANUM);
-    std::cout << "Data initialized." << std::endl;
+    std::cout << "Data initialized." << std::endl << std::endl;
     
     /* connect to server */
     if (mode == CLIENT) {
@@ -194,44 +194,49 @@ int main(int argc, char const *argv[]) {
     double sum_speedup_ratio, max_speedup_ratio, sort_speedup_ratio;
     double speedup_ratio;
 
-    std::cout << "Time test begins." << std::endl << std::endl;
+    for (int i = 0; i < TEST_NUM; i++) {
+        std::cout << "------------------------------" << std::endl;
+        std::cout << "Time test " << i + 1 << "/" << TEST_NUM
+            << " begins." << std::endl << std::endl;
 
-    /* original time test */
-    std::cout << "--- Original version ---" << std::endl;
-    original_time = timeTest(
-        rawFloatData,
-        DATANUM,
-        original_result,
-        original_sum_time,
-        original_max_time,
-        original_sort_time,
-        ORIGINAL
-    );
-    std::cout << std::endl;
+        /* original time test */
+        std::cout << "--- Original version ---" << std::endl;
+        original_time = timeTest(
+            rawFloatData,
+            DATANUM,
+            original_result,
+            original_sum_time,
+            original_max_time,
+            original_sort_time,
+            ORIGINAL
+        );
+        std::cout << std::endl;
 
-    /* speedup time test */
-    std::cout << "--- Speedup version ---" << std::endl;
-    speedup_time = timeTest(
-        rawFloatData,
-        DATANUM,
-        speedup_result,
-        speedup_sum_time,
-        speedup_max_time,
-        speedup_sort_time,
-        SPEEDUP
-    );
-    std::cout << std::endl;
+        /* speedup time test */
+        std::cout << "--- Speedup version ---" << std::endl;
+        speedup_time = timeTest(
+            rawFloatData,
+            DATANUM,
+            speedup_result,
+            speedup_sum_time,
+            speedup_max_time,
+            speedup_sort_time,
+            SPEEDUP
+        );
+        std::cout << std::endl;
 
-    /* speedup ratio */
-    std::cout << "--- Speedup ratio ---" << std::endl;
-    sum_speedup_ratio = original_sum_time / speedup_sum_time;
-    max_speedup_ratio = original_max_time / speedup_max_time;
-    sort_speedup_ratio = original_sort_time / speedup_sort_time;
-    speedup_ratio = original_time / speedup_time;
-    std::cout << "  Sum speedup ratio: " << sum_speedup_ratio << std::endl;
-    std::cout << "  Max speedup ratio: " << max_speedup_ratio << std::endl;
-    std::cout << " Sort speedup ratio: " << sort_speedup_ratio << std::endl;
-    std::cout << "Total speedup ratio: " << speedup_ratio << std::endl;
+        /* speedup ratio */
+        std::cout << "--- Speedup ratio ---" << std::endl;
+        sum_speedup_ratio = original_sum_time / speedup_sum_time;
+        max_speedup_ratio = original_max_time / speedup_max_time;
+        sort_speedup_ratio = original_sort_time / speedup_sort_time;
+        speedup_ratio = original_time / speedup_time;
+        std::cout << "  Sum speedup ratio: " << sum_speedup_ratio << std::endl;
+        std::cout << "  Max speedup ratio: " << max_speedup_ratio << std::endl;
+        std::cout << " Sort speedup ratio: " << sort_speedup_ratio << std::endl;
+        std::cout << "Total speedup ratio: " << speedup_ratio << std::endl;
+        std::cout << std::endl;
+    }
 
     return 0;
 }
