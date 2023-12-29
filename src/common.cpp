@@ -1,6 +1,5 @@
 #include <iostream>
 #include <ctime>
-#include <algorithm>
 #include "original.h"
 #include "speedup.h"
 #include "common.h"

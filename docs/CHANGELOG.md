@@ -235,7 +235,7 @@ Usage: [-l | --local] [-c | --client <server_ip> <server_port>] [-s | --server <
 注意，以上测试结果均针对使用同一随机数种子`42`使用`std::shuffle`打乱后的数组，具有可比性。（终于为我的排序算法正名了！）
 
 # 12.27 (Blattvorhag)
-GCC不支持SVML(Short Vector Math Library)，见如下链接：
+本题要求访问数据时，用`log(sqrt(data))`套起来，对于SSE，需要使用两个函数，即`_mm_log_ps`和`_mm_sqrt_ps`，但是`_mm_log_ps`不是SSE的标准函数，属于SVML(Short Vector Math Library)，查阅资料发现GCC不支持SVML，见如下链接：
 
 https://www.coder.work/article/815777
 
