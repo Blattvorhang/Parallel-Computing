@@ -22,9 +22,10 @@ template <typename T>
 int sendArray(int socket, const T data[], const int len) {
     const int block_len = BUFFER_SIZE / sizeof(T);
     int send_len = 0;
+    int send_size;
     while (send_len < len) {
-        int send_size = std::min(block_len, len - send_len);
-        ssize_t bytesSent = safeSend(socket, data + send_len, send_size * sizeof(float), 0);
+        send_size = std::min(block_len, len - send_len) * sizeof(T);
+        ssize_t bytesSent = safeSend(socket, data + send_len, send_size, 0);
         if (bytesSent == -1)
             return -1;
         // std::cout << "Sent " << bytesSent << " bytes" << std::endl;
@@ -38,9 +39,10 @@ template <typename T>
 int recvArray(int socket, T data[], const int len) {
     const int block_len = BUFFER_SIZE / sizeof(T);
     int recv_len = 0;
+    int recv_size;
     while (recv_len < len) {
-        int recv_size = std::min(block_len, len - recv_len);
-        ssize_t bytesRead = safeRecv(socket, data + recv_len, recv_size * sizeof(float), 0);
+        recv_size = std::min(block_len, len - recv_len) * sizeof(T);
+        ssize_t bytesRead = safeRecv(socket, data + recv_len, recv_size, 0);
         if (bytesRead == -1)
             return -1;
         // std::cout << "Received " << bytesRead << " bytes" << std::endl;
