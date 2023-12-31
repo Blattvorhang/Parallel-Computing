@@ -3,12 +3,10 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
-
-const int BUFFER_SIZE = 1024;  // alternatives: 1024, 2048, 4096, 8192, 16384, 32768, 65536
+#include "server.h"
 
 // Template for server
-int serverConnect(const int server_port) {
+int serverConnect(const int server_port, const float data[], const int len) {
     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket == -1) {
         std::cerr << "Error creating socket" << std::endl;
@@ -53,6 +51,29 @@ int serverConnect(const int server_port) {
         buffer[bytesRead] = '\0';
         std::cout << "Received data from client: " << buffer << std::endl;
     }
+
+    std::cout << "Sending data to client..." << std::endl;
+    // <len> <data> -1(EOF)
+    // ssize_t bytesSent = send(clientSocket, &len, sizeof(len), 0);
+    // int send_len = 0;
+    // const int array_size = BUFFER_SIZE / sizeof(float);
+    // for (int i = 0; i < len; i += array_size) {
+    //     send_len = (i + array_size < len) ? array_size : len - i;
+    //     ssize_t bytesSent = send(clientSocket, data + i, send_len * sizeof(float), 0);
+    //     if (bytesSent == -1) {
+    //         std::cerr << "Error sending data" << std::endl;
+    //     } else {
+    //         std::cout << "Sent data to client" << std::endl;
+    //     }
+    // }
+    // send_len = -1;
+    // send(clientSocket, &send_len, sizeof(send_len), 0);
+    for (int i = 0; i < BUFFER_SIZE / sizeof(float); i++) {
+        std::cout << data[i] << " ";
+    }
+    std::cout << std::endl;
+    ssize_t bytesSent = send(clientSocket, data, BUFFER_SIZE, 0);
+    
 
     close(clientSocket);
     close(serverSocket);

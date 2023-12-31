@@ -8,7 +8,7 @@
 #include "client.h"
 #include "server.h"
 
-#define INIT_SHUFFLE 1  // define whether to shuffle the data before sorting
+#define INIT_SHUFFLE 0  // define whether to shuffle the data before sorting
 #define TEST_NUM 1  // number of times to test, for calculating the average time
 
 RunningMode mode;
@@ -177,9 +177,10 @@ int main(int argc, char const *argv[]) {
             std::cerr << "Error connecting to server" << std::endl;
             return 1;
         }
+        return 0;
     }
     else if (mode == SERVER) {
-        int ret = serverConnect(server_port);
+        int ret = serverConnect(server_port, rawFloatData, DATANUM);
         if (ret == -1) {
             std::cerr << "Error creating server" << std::endl;
             return 1;
