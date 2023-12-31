@@ -11,15 +11,27 @@ template <typename T>
 int sendArray(int socket, const T data[], const int len);
 
 template <typename T>
-int recvArray(int socket, T data[], const int len);
+int recvArray(int socket, T data[]);
 
 int serverConnect(const int server_port, const float data[], const int len);
 int clientConnect(const char* server_ip, const int server_port);
 
 
 
+/**
+ * @brief Send an array of data. Format: <len> <data>
+ * @param socket Socket to send data
+ * @param data Array of data
+ * @param len Length of array
+ * @return 0 if success, -1 if error
+ */
 template <typename T>
 int sendArray(int socket, const T data[], const int len) {
+    // <len> <data>
+    ssize_t bytesSent = safeSend(socket, &len, sizeof(len), 0);
+    if (bytesSent == -1)
+        return -1;
+    
     const int block_len = BUFFER_SIZE / sizeof(T);
     int send_len = 0;
     int send_size;
@@ -35,8 +47,20 @@ int sendArray(int socket, const T data[], const int len) {
 }
 
 
+/**
+ * @brief Receive an array of data. Format: <len> <data>
+ * @param socket Socket to receive data
+ * @param data Array of data
+ * @return Length of array if success, -1 if error
+ */
 template <typename T>
-int recvArray(int socket, T data[], const int len) {
+int recvArray(int socket, T data[]) {
+    // <len> <data>
+    int len;
+    ssize_t bytesRead = safeRecv(socket, &len, sizeof(len), 0);
+    if (bytesRead == -1)
+        return -1;
+    
     const int block_len = BUFFER_SIZE / sizeof(T);
     int recv_len = 0;
     int recv_size;
@@ -48,5 +72,5 @@ int recvArray(int socket, T data[], const int len) {
         // std::cout << "Received " << bytesRead << " bytes" << std::endl;
         recv_len += bytesRead / sizeof(T);
     }
-    return 0;
+    return len;
 }

@@ -53,8 +53,6 @@ int serverConnect(const int server_port, const float data[], const int len) {
     }
 
     std::cout << "Sending data to client..." << std::endl;
-    // <len> <data>
-    ssize_t bytesSent = safeSend(clientSocket, &len, sizeof(len), 0);
     int ret = sendArray(clientSocket, data, len);
     if (ret == -1) {
         std::cerr << "Error sending array" << std::endl;

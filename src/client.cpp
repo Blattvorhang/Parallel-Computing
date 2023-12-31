@@ -39,12 +39,9 @@ int clientConnect(const char* server_ip, const int server_port) {
 
     timespec start, end;
 
-    // <len> <data>
-    int len;
-    ssize_t bytesRead = safeRecv(clientSocket, &len, sizeof(len), 0);
     clock_gettime(CLOCK_MONOTONIC, &start);
-    int ret = recvArray(clientSocket, floatData, len);
-    if (ret == -1) {
+    int len = recvArray(clientSocket, floatData);
+    if (len == -1) {
         std::cerr << "Error receiving array" << std::endl;
     }
     clock_gettime(CLOCK_MONOTONIC, &end);
