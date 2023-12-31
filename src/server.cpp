@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include "server.h"
+#include "net.hpp"
 
 // Template for server
 int serverConnect(const int server_port, const float data[], const int len) {
@@ -53,27 +53,12 @@ int serverConnect(const int server_port, const float data[], const int len) {
     }
 
     std::cout << "Sending data to client..." << std::endl;
-    // <len> <data> -1(EOF)
-    // ssize_t bytesSent = send(clientSocket, &len, sizeof(len), 0);
-    // int send_len = 0;
-    // const int array_size = BUFFER_SIZE / sizeof(float);
-    // for (int i = 0; i < len; i += array_size) {
-    //     send_len = (i + array_size < len) ? array_size : len - i;
-    //     ssize_t bytesSent = send(clientSocket, data + i, send_len * sizeof(float), 0);
-    //     if (bytesSent == -1) {
-    //         std::cerr << "Error sending data" << std::endl;
-    //     } else {
-    //         std::cout << "Sent data to client" << std::endl;
-    //     }
-    // }
-    // send_len = -1;
-    // send(clientSocket, &send_len, sizeof(send_len), 0);
-    for (int i = 0; i < BUFFER_SIZE / sizeof(float); i++) {
-        std::cout << data[i] << " ";
+    // <len> <data>
+    ssize_t bytesSent = safeSend(clientSocket, &len, sizeof(len), 0);
+    int ret = sendArray(clientSocket, data, len);
+    if (ret == -1) {
+        std::cerr << "Error sending array" << std::endl;
     }
-    std::cout << std::endl;
-    ssize_t bytesSent = send(clientSocket, data, BUFFER_SIZE, 0);
-    
 
     close(clientSocket);
     close(serverSocket);

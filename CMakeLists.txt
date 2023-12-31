@@ -39,6 +39,7 @@ add_executable(${PROJECT_NAME}
     src/common.cpp
     src/client.cpp
     src/server.cpp
+    src/net.cpp
     src/cuda.cu
 )
 

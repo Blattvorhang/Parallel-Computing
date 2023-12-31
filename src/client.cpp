@@ -1,11 +1,12 @@
 #include <iostream>
+#include <ctime>
 #include <cstring>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "server.h"
 #include "common.h"
+#include "net.hpp"
 
 float floatData[DATANUM];
 
@@ -36,51 +37,20 @@ int clientConnect(const char* server_ip, const int server_port) {
         std::cout << "Sent data to server" << std::endl;
     }
 
-    float buffer[BUFFER_SIZE];
-    int recv_len = 0;
-    // Receive len first, if len == -1, then EOF, otherwise, receive data
-    // while (true) {
-    //     ssize_t bytesRead = recv(clientSocket, &recv_len, sizeof(recv_len), 0);
-    //     if (bytesRead == -1) {
-    //         std::cerr << "Error receiving data" << std::endl;
-    //         break;
-    //     } else if (bytesRead == 0) {
-    //         std::cout << "Server closed connection" << std::endl;
-    //         break;
-    //     } else {
-    //         std::cout << "Received data from server: " << recv_len << std::endl;
-    //     }
+    timespec start, end;
 
-    //     if (recv_len == -1) {
-    //         std::cout << "Received EOF from server" << std::endl;
-    //         break;
-    //     }
-
-    //     std::cout << "Receiving data from server..." << std::endl;
-    //     // <len> <data> -1(EOF)
-    //     for (int i = 0; i < recv_len; i += BUFFER_SIZE) {
-    //         ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-    //         if (bytesRead == -1) {
-    //             std::cerr << "Error receiving data" << std::endl;
-    //             break;
-    //         } else if (bytesRead == 0) {
-    //             std::cout << "Server closed connection" << std::endl;
-    //             break;
-    //         } else {
-    //             std::cout << "Received data from server: " << bytesRead << std::endl;
-    //         }
-
-    //         for (int j = 0; j < bytesRead; j++) {
-    //             std::cout << buffer[j] << std::endl;
-    //         }
-    //     }
-    // }
-    ssize_t bytesRead = recv(clientSocket, floatData, BUFFER_SIZE, 0);
-    for (int i = 0; i < BUFFER_SIZE / sizeof(float); i++) {
-        std::cout << floatData[i] << " ";
+    // <len> <data>
+    int len;
+    ssize_t bytesRead = safeRecv(clientSocket, &len, sizeof(len), 0);
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    int ret = recvArray(clientSocket, floatData, len);
+    if (ret == -1) {
+        std::cerr << "Error receiving array" << std::endl;
     }
-    std::cout << std::endl;
+    clock_gettime(CLOCK_MONOTONIC, &end);
 
+    double time_consumed = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+    std::cout << "Receiving array time consumed: " << time_consumed << "s" << std::endl;
 
     close(clientSocket);
 

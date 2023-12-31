@@ -5,8 +5,7 @@
 #include <random>
 #include <algorithm>  // only for std::shuffle
 #include "common.h"
-#include "client.h"
-#include "server.h"
+#include "net.hpp"
 
 #define INIT_SHUFFLE 0  // define whether to shuffle the data before sorting
 #define TEST_NUM 1  // number of times to test, for calculating the average time
