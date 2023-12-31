@@ -290,3 +290,73 @@ Total speedup ratio: 4.58144
 
 # 12.29 (Blattvorhang)
 修改了一些main函数的输入输出。发现数组不打乱加速比更大，怀疑可能是因为分支预测等，最终提交的报告、答辩等建议分打乱和不打乱两个版本的结果。
+
+# 12.31 (KevinTung)
+删除了main函数中的冗余头文件
+新增了cuda.cu和cuda.cuh两个文件，用于实现基于双调排序的CUDA加速排序算法
+使用cuda需要确保输入的排序数字个数为2的幂次，在函数内填充了数据至2的幂次，排序后再删除
+增加了cmake文件关于cuda的配置
+在common.h中增加了CUDA的宏定义，用于判断是否使用CUDA加速
+```
+Time test 1/1 begins.
+
+--- Original version ---
+  Sum time consumed: 1.08735
+  Max time consumed: 1.17587
+ Sort time consumed: 117.385
+Total time consumed: 119.648
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+  Sum time consumed: 0.127932
+  Max time consumed: 0.147056
+ Sort time consumed: 0.573649
+Total time consumed: 0.848637
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup ratio ---
+  Sum speedup ratio: 8.4995
+  Max speedup ratio: 7.99607
+ Sort speedup ratio: 204.629
+Total speedup ratio: 140.989
+```
+可以看出cuda加速非常猛，下面是使用了fill填充至2的n次幂后的速度（不知道为什么没有填充结果也对）
+填充的选项在cuda.cuh中
+
+```
+------------------------------
+Time test 1/1 begins.
+
+--- Original version ---
+  Sum time consumed: 1.02786
+  Max time consumed: 1.17677
+ Sort time consumed: 108.047
+Total time consumed: 110.252
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+  Sum time consumed: 0.121614
+  Max time consumed: 0.132329
+ Sort time consumed: 1.39535
+Total time consumed: 1.64929
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup ratio ---
+  Sum speedup ratio: 8.45184
+  Max speedup ratio: 8.89274
+ Sort speedup ratio: 77.434
+Total speedup ratio: 66.8481
+
+```

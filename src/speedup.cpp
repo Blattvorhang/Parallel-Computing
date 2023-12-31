@@ -90,6 +90,8 @@ float maxSpeedUp(const float data[], const int len) {
  * @param len The length of the array.
  * @param level The level of parallelism. If level is 0, the function falls back to regular sort.
  */
+
+
 void parallelSortAux(float arr1[], float arr2[], const int len, const int level) {
     if (level == 0) {
         mergeSort(arr1, len);

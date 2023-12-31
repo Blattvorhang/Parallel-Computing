@@ -1,6 +1,6 @@
 # cmake_minimum_required(VERSION <specify CMake version here>)
-cmake_minimum_required(VERSION 3.26)
-
+cmake_minimum_required(VERSION 3.8)
+enable_language(CUDA)
 # set the project name
 project(SpeedUp_Computing)
 
@@ -15,6 +15,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # find OpenMP
 find_package(OpenMP REQUIRED)
+
+# find CUDA
+find_package(CUDA REQUIRED)
 
 if(OPENMP_FOUND)
     message("OpenMP found")
@@ -32,9 +35,12 @@ add_executable(${PROJECT_NAME}
     src/common.cpp
     src/client.cpp
     src/server.cpp
+    src/cuda.cu
 )
 
 # add the include directory
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+target_link_libraries(${PROJECT_NAME} PUBLIC ${CUDA_LIBRARIES})

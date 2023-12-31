@@ -3,6 +3,7 @@
 #include "original.h"
 #include "speedup.h"
 #include "common.h"
+#include "cuda.cuh"
 
 extern RunningMode mode;
 
@@ -89,8 +90,11 @@ void run_original(
     double& max_time,
     double& sort_time
 ) {
-    timespec start, end;
 
+#if SKIP_ORIGINAL
+
+#else
+    timespec start, end;
     clock_gettime(CLOCK_REALTIME, &start);
     sum_value = sum(data, len);
     clock_gettime(CLOCK_REALTIME, &end);
@@ -105,6 +109,7 @@ void run_original(
     sort(data, len, result);
     clock_gettime(CLOCK_REALTIME, &end);
     sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+#endif
 }
 
 
@@ -132,7 +137,11 @@ void run_speedup(
     max_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
 
     clock_gettime(CLOCK_REALTIME, &start);
+#if CUDA
+    sortSpeedUpCuda(data, len, result);
+#else
     sortSpeedUp(data, len, result);
+#endif
     clock_gettime(CLOCK_REALTIME, &end);
     sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
 }

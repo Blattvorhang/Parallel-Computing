@@ -4,8 +4,6 @@
 #include <ctime>
 #include <random>
 #include <algorithm>  // only for std::shuffle
-#include "original.h"
-#include "speedup.h"
 #include "common.h"
 #include "client.h"
 #include "server.h"
@@ -179,7 +177,8 @@ int main(int argc, char const *argv[]) {
             std::cerr << "Error connecting to server" << std::endl;
             return 1;
         }
-    } else if (mode == SERVER) {
+    }
+    else if (mode == SERVER) {
         int ret = serverConnect(server_port);
         if (ret == -1) {
             std::cerr << "Error creating server" << std::endl;
