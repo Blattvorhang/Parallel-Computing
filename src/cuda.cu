@@ -4,7 +4,7 @@
 #include <vector>
 #include <cfloat>
 #include "cuda.cuh"
-#include "../include/common.h"
+#include "common.h"
 #define NThreads 8
 
 extern RunningMode mode;

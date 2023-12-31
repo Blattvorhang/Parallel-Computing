@@ -16,9 +16,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # find OpenMP
 find_package(OpenMP REQUIRED)
 
-# find CUDA
-find_package(CUDA REQUIRED)
-
 if(OPENMP_FOUND)
     message("OpenMP found")
     set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS})
@@ -26,6 +23,13 @@ if(OPENMP_FOUND)
 else()
     message("OpenMP not found")
 endif()
+
+# find CUDA
+find_package(CUDA REQUIRED)
+
+if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+set(CMAKE_CUDA_ARCHITECTURES 70 75 80)
+endif(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
 
 # add the executable
 add_executable(${PROJECT_NAME}

@@ -90,10 +90,6 @@ void run_original(
     double& max_time,
     double& sort_time
 ) {
-
-#if SKIP_ORIGINAL
-
-#else
     timespec start, end;
     clock_gettime(CLOCK_REALTIME, &start);
     sum_value = sum(data, len);
@@ -109,7 +105,6 @@ void run_original(
     sort(data, len, result);
     clock_gettime(CLOCK_REALTIME, &end);
     sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
-#endif
 }
 
 

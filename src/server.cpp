@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 
 
-const int BUFFER_SIZE = 1024;
+const int BUFFER_SIZE = 1024;  // alternatives: 1024, 2048, 4096, 8192, 16384, 32768, 65536
 
 // Template for server
 int serverConnect(const int server_port) {
