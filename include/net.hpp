@@ -7,13 +7,9 @@
 #include <arpa/inet.h>
 #include "common.h"
 
-const double SEP_ALPHA = 0.6;              // client proportion of data
-const int SEP = DATANUM * SEP_ALPHA;       // position of separation
-const int CLIENT_DATANUM = SEP;            // number of data for client
-const int SERVER_DATANUM = DATANUM - SEP;  // number of data for server
+const double SEP_ALPHA = 0.6; // client proportion of data
 
 const int SORT_BLOCK_NUM = 8;
-const int SORT_BLOCK_SIZE = SERVER_DATANUM / SORT_BLOCK_NUM;
 const int SORT_SOCKET_NUM = SORT_BLOCK_NUM;
 
 // alternatives: 1024, 2048, 4096, 8192, 16384, 32768, 65536
@@ -31,6 +27,13 @@ int recvArray(int socket, T data[]);
 int serverConnect(const int server_port, const float data[], const int len);
 int clientConnect(const char* server_ip, const int server_port);
 
+float clientSum(const float data[], const int len);
+float clientMax(const float data[], const int len);
+void clientSort(const float data[], const int len, float result[]);
+
+float serverSum(const float data[], const int len);
+float serverMax(const float data[], const int len);
+void serverSort(const float data[], const int len, float result[]);
 
 
 /**

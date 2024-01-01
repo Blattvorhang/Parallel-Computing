@@ -1,10 +1,49 @@
 #include <iostream>
 #include <thread>
+#include "speedup.h"
 #include "net.hpp"
 
 static int serverSocket;
 static int sumSocket, maxSocket;
 static int sortSockets[SORT_SOCKET_NUM];
+
+
+float serverSum(const float data[], const int len) {
+    const float* server_data = data + int(len * SEP_ALPHA);
+    const int server_len = len - int(len * SEP_ALPHA);
+
+    float server_sum = sumSpeedUp(server_data, server_len);
+    ssize_t bytesSent = safeSend(sumSocket, &server_sum, sizeof(server_sum), 0);
+    if (bytesSent == -1) {
+        std::cerr << "Error sending sum" << std::endl;
+        return -1;
+    }
+
+    return server_sum;
+}
+
+
+float serverMax(const float data[], const int len) {
+    const float* server_data = data + int(len * SEP_ALPHA);
+    const int server_len = len - int(len * SEP_ALPHA);
+
+    float server_max = maxSpeedUp(server_data, server_len);
+    ssize_t bytesSent = safeSend(maxSocket, &server_max, sizeof(server_max), 0);
+    if (bytesSent == -1) {
+        std::cerr << "Error sending max" << std::endl;
+        return -1;
+    }
+
+    return server_max;
+}
+
+
+void serverSort(const float data[], const int len, float result[]) {
+    //TODO
+    const float* server_data = data + int(len * SEP_ALPHA);
+    const int server_len = len - int(len * SEP_ALPHA);
+    const int block_len = server_len / SORT_BLOCK_NUM;
+}
 
 
 int acceptClientConnection(int serverSocket) {

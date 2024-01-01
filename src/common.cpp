@@ -4,6 +4,7 @@
 #include "speedup.h"
 #include "common.h"
 #include "cuda.cuh"
+#include "net.hpp"
 
 extern RunningMode mode;
 
@@ -102,7 +103,7 @@ void run_original(
     max_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
 
     clock_gettime(CLOCK_REALTIME, &start);
-    sort(data, len, result);
+    //sort(data, len, result);
     clock_gettime(CLOCK_REALTIME, &end);
     sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
 }
@@ -118,25 +119,58 @@ void run_speedup(
     double& max_time,
     double& sort_time
 ) {
-    // TODO: Distinguish client and server mode.
     timespec start, end;
 
-    clock_gettime(CLOCK_REALTIME, &start);
-    sum_value = sumSpeedUp(data, len);
-    clock_gettime(CLOCK_REALTIME, &end);
-    sum_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+    if (mode == LOCAL) {
+        clock_gettime(CLOCK_REALTIME, &start);
+        sum_value = sumSpeedUp(data, len);
+        clock_gettime(CLOCK_REALTIME, &end);
+        sum_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
 
-    clock_gettime(CLOCK_REALTIME, &start);
-    max_value = maxSpeedUp(data, len);
-    clock_gettime(CLOCK_REALTIME, &end);
-    max_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+        clock_gettime(CLOCK_REALTIME, &start);
+        max_value = maxSpeedUp(data, len);
+        clock_gettime(CLOCK_REALTIME, &end);
+        max_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
 
-    clock_gettime(CLOCK_REALTIME, &start);
+        clock_gettime(CLOCK_REALTIME, &start);
 #if CUDA
-    sortSpeedUpCuda(data, len, result);
+        sortSpeedUpCuda(data, len, result);
 #else
-    sortSpeedUp(data, len, result);
+        //sortSpeedUp(data, len, result);
 #endif
-    clock_gettime(CLOCK_REALTIME, &end);
-    sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+        clock_gettime(CLOCK_REALTIME, &end);
+        sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+    }
+    else if (mode == CLIENT) {
+        clock_gettime(CLOCK_REALTIME, &start);
+        sum_value = clientSum(data, len);
+        clock_gettime(CLOCK_REALTIME, &end);
+        sum_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+
+        clock_gettime(CLOCK_REALTIME, &start);
+        max_value = clientMax(data, len);
+        clock_gettime(CLOCK_REALTIME, &end);
+        max_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+
+        clock_gettime(CLOCK_REALTIME, &start);
+        clientSort(data, len, result);
+        clock_gettime(CLOCK_REALTIME, &end);
+        sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+    }
+    else if (mode == SERVER) {
+        clock_gettime(CLOCK_REALTIME, &start);
+        sum_value = serverSum(data, len);
+        clock_gettime(CLOCK_REALTIME, &end);
+        sum_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+
+        clock_gettime(CLOCK_REALTIME, &start);
+        max_value = serverMax(data, len);
+        clock_gettime(CLOCK_REALTIME, &end);
+        max_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+
+        clock_gettime(CLOCK_REALTIME, &start);
+        serverSort(data, len, result);
+        clock_gettime(CLOCK_REALTIME, &end);
+        sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+    }
 }

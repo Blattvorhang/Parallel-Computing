@@ -52,7 +52,7 @@ float sumSpeedUp(const float data[], const int len) {
 float sumSpeedUp(const float data[], const int len) {
     float sum_value = 0.0f;
     float c = 0.0f; // A running compensation for lost low-order bits.
-    #pragma omp parallel for num_threads(MAX_THREADS) reduction(+:sum_value, c)
+    #pragma omp parallel for reduction(+:sum_value, c)
     for (int i = 0; i < len; i++) {
         /* Kahan summation algorithm */
         /* https://en.wikipedia.org/wiki/Kahan_summation_algorithm */
@@ -71,7 +71,7 @@ float maxSpeedUp(const float data[], const int len) {
     if (len <= 0)
         return 0;
     double max_value = ACCESS(data[0]);
-    #pragma omp parallel for num_threads(MAX_THREADS) reduction(max:max_value)
+    #pragma omp parallel for reduction(max:max_value)
     for (int i = 1; i < len; i++) {
         double temp = ACCESS(data[i]);
         if (temp > max_value) {

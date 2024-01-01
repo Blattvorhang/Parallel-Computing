@@ -2,10 +2,56 @@
 #include <ctime>
 #include <thread>
 #include "common.h"
+#include "speedup.h"
 #include "net.hpp"
 
 static int sumSocket, maxSocket;
 static int sortSockets[SORT_SOCKET_NUM];
+
+
+float clientSum(const float data[], const int len) {
+    const float* client_data = data;
+    const int client_len = len * SEP_ALPHA;
+
+    float client_sum = sumSpeedUp(client_data, client_len);
+    //std::cout << "Client sum: " << client_sum << std::endl;
+
+    float server_sum;
+    ssize_t bytesRecv = safeRecv(sumSocket, &server_sum, sizeof(server_sum), 0);
+    if (bytesRecv == -1) {
+        std::cerr << "Error receiving sum" << std::endl;
+        return -1;
+    }
+    //std::cout << "Server sum: " << server_sum << std::endl;
+
+    return client_sum + server_sum;
+}
+
+
+float clientMax(const float data[], const int len) {
+    const float* client_data = data;
+    const int client_len = len * SEP_ALPHA;
+
+    float client_max = maxSpeedUp(client_data, client_len);
+    //std::cout << "Client max: " << client_max << std::endl;
+
+    float server_max;
+    ssize_t bytesRecv = safeRecv(maxSocket, &server_max, sizeof(server_max), 0);
+    if (bytesRecv == -1) {
+        std::cerr << "Error receiving max" << std::endl;
+        return -1;
+    }
+    //std::cout << "Server max: " << server_max << std::endl;
+
+    return client_max > server_max ? client_max : server_max;
+}
+
+
+void clientSort(const float data[], const int len, float result[]) {
+    //TODO
+    const float* client_data = data;
+    const int client_len = len * SEP_ALPHA;
+}
 
 
 int connectToServer(sockaddr_in serverAddr) {
