@@ -253,9 +253,9 @@ int main(int argc, char const *argv[]) {
 
     /* disconnect from server */
     if (mode == CLIENT)
-        clientCloseSockets();
+        clientDisconnect();
     else if (mode == SERVER)
-        serverCloseSockets();
+        serverDisconnect();
 
     return 0;
 }

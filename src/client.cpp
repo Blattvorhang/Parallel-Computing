@@ -151,7 +151,7 @@ int clientConnect(const char* server_ip, const int server_port) {
 }
 
 
-void clientCloseSockets() {
+void clientDisconnect() {
     close(sumSocket);
     close(maxSocket);
     for (int i = 0; i < SORT_SOCKET_NUM; i++)

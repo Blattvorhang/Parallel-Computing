@@ -151,7 +151,7 @@ int serverConnect(const int server_port, const float data[], const int len) {
 }
 
 
-void serverCloseSockets() {
+void serverDisconnect() {
     close(sumSocket);
     close(maxSocket);
     for (int i = 0; i < SORT_SOCKET_NUM; i++) {

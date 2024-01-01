@@ -30,8 +30,8 @@ int clientConnect(const char* server_ip, const int server_port);
 int clientSync();
 int serverSync();
 
-void clientCloseSockets();
-void serverCloseSockets();
+void clientDisconnect();
+void serverDisconnect();
 
 float clientSum(const float data[], const int len);
 float clientMax(const float data[], const int len);
