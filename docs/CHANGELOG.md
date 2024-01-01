@@ -372,3 +372,33 @@ Total speedup ratio: 66.8481
 TCP连接需要确定端口号，虚拟机（WSL和VMWare）默认使用NAT模式，会进行端口映射，导致应用程序的实际端口号与运行时规定的不同，因此要先将虚拟机网络设置改为桥接模式。使用RJ-45网线连接配置为局域网，虚拟机手动指定静态IP地址，使用对应端口连接成功。
 
 将收发数组统一打包成了两个函数`sendArray`和`recvArray`，经过测试可以完整传输整个数组，本地回环地址用时0.2s左右，这样就不需要再考虑通信协议的问题了。
+
+# 1.1 (Blattvorhang)
+完成了两台计算机传递sum和max的程序，通过回环地址在本地跑通，结果如下：
+
+```
+--- Original version ---
+  Sum time consumed: 1.39273
+  Max time consumed: 1.59763
+Total time consumed: 2.99036
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+  Sum time consumed: 0.224975
+  Max time consumed: 0.232137
+Total time consumed: 0.457113
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup ratio ---
+  Sum speedup ratio: 6.19058
+  Max speedup ratio: 6.88227
+Total speedup ratio: 6.54184
+```
+
+结果正确。
