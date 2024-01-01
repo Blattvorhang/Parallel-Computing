@@ -3,7 +3,7 @@
 #include "speedup.h"
 #include "net.hpp"
 
-static int serverSocket;
+static int serverSocket, clientSocket;
 static int sumSocket, maxSocket;
 static int sortSockets[SORT_SOCKET_NUM];
 
@@ -39,10 +39,47 @@ float serverMax(const float data[], const int len) {
 
 
 void serverSort(const float data[], const int len, float result[]) {
-    //TODO
     const float* server_data = data + int(len * SEP_ALPHA);
     const int server_len = len - int(len * SEP_ALPHA);
     const int block_len = server_len / SORT_BLOCK_NUM;
+
+    float* server_result = new float[server_len];
+    sortSpeedUp(server_data, server_len, server_result);
+
+    // TODO: asynchronously send data in blocks
+    int ret = sendArray(sortSockets[0], server_result, server_len);
+    if (ret == -1) {
+        std::cerr << "Error sending array" << std::endl;
+    }
+    delete[] server_result;
+}
+
+
+/**
+ * @brief Handshake for synchronization, client sends 's' to server,
+ *        server sends 'a' back to client.
+ * @return 0 if success, -1 if error
+ */
+int serverSync() {
+    std::cout << "Waiting for client to synchronize..." << std::endl;
+
+    char sync;
+    ssize_t bytesRecv = safeRecv(clientSocket, &sync, sizeof(sync), 0);
+    if (bytesRecv == -1 || sync != 's') {
+        std::cerr << "Error receiving sync" << std::endl;
+        return -1;
+    }
+
+    const char sync_ack = 'a';
+    ssize_t bytesSent = safeSend(clientSocket, &sync_ack, sizeof(sync_ack), 0);
+    if (bytesSent == -1) {
+        std::cerr << "Error sending sync ack" << std::endl;
+        return -1;
+    }
+    
+    std::cout << "Client synchronized" << std::endl << std::endl;
+
+    return 0;
 }
 
 
@@ -86,6 +123,11 @@ int serverConnect(const int server_port, const float data[], const int len) {
 
     std::cout << "Server listening on port " << server_port << "..." << std::endl;
 
+    clientSocket = acceptClientConnection(serverSocket);
+    if (clientSocket == -1)
+        return -1;
+    std::cout << "Client socket connected" << std::endl;
+
     sumSocket = acceptClientConnection(serverSocket);
     if (sumSocket == -1)
         return -1;
@@ -115,6 +157,7 @@ void serverCloseSockets() {
     for (int i = 0; i < SORT_SOCKET_NUM; i++) {
         close(sortSockets[i]);
     }
+    close(clientSocket);
     close(serverSocket);
 }
 

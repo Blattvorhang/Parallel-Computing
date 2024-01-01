@@ -197,17 +197,30 @@ int main(int argc, char const *argv[]) {
             << " begins." << std::endl << std::endl;
 
         /* original time test */
-        std::cout << "--- Original version ---" << std::endl;
-        original_time = timeTest(
-            rawFloatData,
-            DATANUM,
-            original_result,
-            original_sum_time,
-            original_max_time,
-            original_sort_time,
-            ORIGINAL
-        );
-        std::cout << std::endl;
+        if (mode != SERVER) {
+            std::cout << "--- Original version ---" << std::endl;
+            original_time = timeTest(
+                rawFloatData,
+                DATANUM,
+                original_result,
+                original_sum_time,
+                original_max_time,
+                original_sort_time,
+                ORIGINAL
+            );
+            std::cout << std::endl;
+        }
+
+        /* wait for synchronization */
+        int sync_ret;
+        if (mode == CLIENT)
+            sync_ret = clientSync();
+        else if (mode == SERVER)
+            sync_ret = serverSync();
+        if (sync_ret == -1) {
+            std::cerr << "Error synchronizing" << std::endl;
+            return 1;
+        }
 
         /* speedup time test */
         std::cout << "--- Speedup version ---" << std::endl;

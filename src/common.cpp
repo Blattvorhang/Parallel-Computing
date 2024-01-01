@@ -103,7 +103,7 @@ void run_original(
     max_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
 
     clock_gettime(CLOCK_REALTIME, &start);
-    //sort(data, len, result);
+    sort(data, len, result);
     clock_gettime(CLOCK_REALTIME, &end);
     sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
 }
@@ -136,11 +136,12 @@ void run_speedup(
 #if CUDA
         sortSpeedUpCuda(data, len, result);
 #else
-        //sortSpeedUp(data, len, result);
+        sortSpeedUp(data, len, result);
 #endif
         clock_gettime(CLOCK_REALTIME, &end);
         sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
     }
+
     else if (mode == CLIENT) {
         clock_gettime(CLOCK_REALTIME, &start);
         sum_value = clientSum(data, len);
@@ -156,7 +157,10 @@ void run_speedup(
         clientSort(data, len, result);
         clock_gettime(CLOCK_REALTIME, &end);
         sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+
+        clientCloseSockets();
     }
+
     else if (mode == SERVER) {
         clock_gettime(CLOCK_REALTIME, &start);
         sum_value = serverSum(data, len);
@@ -172,5 +176,7 @@ void run_speedup(
         serverSort(data, len, result);
         clock_gettime(CLOCK_REALTIME, &end);
         sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
+
+        serverCloseSockets();
     }
 }

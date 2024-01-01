@@ -1,2 +1,2 @@
 #!/bin/bash
-./build/bin/SpeedUp_Computing -s 2345
+./build/bin/SpeedUp_Computing -s 8080

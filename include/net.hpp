@@ -27,6 +27,12 @@ int recvArray(int socket, T data[]);
 int serverConnect(const int server_port, const float data[], const int len);
 int clientConnect(const char* server_ip, const int server_port);
 
+int clientSync();
+int serverSync();
+
+void clientCloseSockets();
+void serverCloseSockets();
+
 float clientSum(const float data[], const int len);
 float clientMax(const float data[], const int len);
 void clientSort(const float data[], const int len, float result[]);

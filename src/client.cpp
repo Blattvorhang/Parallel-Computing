@@ -5,6 +5,7 @@
 #include "speedup.h"
 #include "net.hpp"
 
+static int clientSocket;
 static int sumSocket, maxSocket;
 static int sortSockets[SORT_SOCKET_NUM];
 
@@ -14,7 +15,6 @@ float clientSum(const float data[], const int len) {
     const int client_len = len * SEP_ALPHA;
 
     float client_sum = sumSpeedUp(client_data, client_len);
-    //std::cout << "Client sum: " << client_sum << std::endl;
 
     float server_sum;
     ssize_t bytesRecv = safeRecv(sumSocket, &server_sum, sizeof(server_sum), 0);
@@ -22,6 +22,8 @@ float clientSum(const float data[], const int len) {
         std::cerr << "Error receiving sum" << std::endl;
         return -1;
     }
+
+    //std::cout << "Client sum: " << client_sum << std::endl;
     //std::cout << "Server sum: " << server_sum << std::endl;
 
     return client_sum + server_sum;
@@ -33,7 +35,6 @@ float clientMax(const float data[], const int len) {
     const int client_len = len * SEP_ALPHA;
 
     float client_max = maxSpeedUp(client_data, client_len);
-    //std::cout << "Client max: " << client_max << std::endl;
 
     float server_max;
     ssize_t bytesRecv = safeRecv(maxSocket, &server_max, sizeof(server_max), 0);
@@ -41,6 +42,8 @@ float clientMax(const float data[], const int len) {
         std::cerr << "Error receiving max" << std::endl;
         return -1;
     }
+
+    //std::cout << "Client max: " << client_max << std::endl;
     //std::cout << "Server max: " << server_max << std::endl;
 
     return client_max > server_max ? client_max : server_max;
@@ -48,9 +51,52 @@ float clientMax(const float data[], const int len) {
 
 
 void clientSort(const float data[], const int len, float result[]) {
-    //TODO
     const float* client_data = data;
     const int client_len = len * SEP_ALPHA;
+
+    float* client_result = new float[client_len];
+    sortSpeedUp(client_data, client_len, client_result);
+
+    // TODO: asynchronously receive data in blocks
+    float* server_result = new float[len - client_len];
+    int server_len = recvArray(sortSockets[0], server_result);
+    if (server_len == -1) {
+        std::cerr << "Error receiving array" << std::endl;
+        return;
+    }
+
+    merge(result, client_result, server_result, client_len, server_len);
+
+    delete[] client_result;
+    delete[] server_result;
+}
+
+
+/**
+ * @brief Handshake for synchronization, client sends 's' to server,
+ *        server sends 'a' back to client.
+ * @return 0 if success, -1 if error
+ */
+int clientSync() {
+    const char sync = 's';
+    ssize_t bytesSent = safeSend(clientSocket, &sync, sizeof(sync), 0);
+    if (bytesSent == -1) {
+        std::cerr << "Error sending begin" << std::endl;
+        return -1;
+    }
+
+    std::cout << "Waiting for server to sync..." << std::endl;
+
+    char sync_ack;
+    ssize_t bytesRecv = safeRecv(clientSocket, &sync_ack, sizeof(sync_ack), 0);
+    if (bytesRecv == -1 || sync_ack != 'a') {
+        std::cerr << "Error receiving sync ack" << std::endl;
+        return -1;
+    }
+
+    std::cout << "Server synchronized" << std::endl << std::endl;
+
+    return 0;
 }
 
 
@@ -76,6 +122,11 @@ int clientConnect(const char* server_ip, const int server_port) {
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = inet_addr(server_ip);
     serverAddr.sin_port = htons(server_port);
+
+    clientSocket = connectToServer(serverAddr);
+    if (clientSocket == -1)
+        return -1;
+    std::cout << "Client socket connected" << std::endl;
 
     sumSocket = connectToServer(serverAddr);
     if (sumSocket == -1)
@@ -105,6 +156,7 @@ void clientCloseSockets() {
     close(maxSocket);
     for (int i = 0; i < SORT_SOCKET_NUM; i++)
         close(sortSockets[i]);
+    close(clientSocket);
 }
 
 

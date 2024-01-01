@@ -5,9 +5,6 @@
 
 #define SSE 0
 
-extern RunningMode mode;
-
-
 #if SSE
 /* SSE version */
 float sumSpeedUp(const float data[], const int len) {
@@ -129,6 +126,7 @@ void parallelSort(float arr[], const int len, const int level) {
         for (int i = 0; i < len; i++)
             arr[i] = temp[i];
     }
+    delete[] temp;
 }
 
 
@@ -141,9 +139,7 @@ inline int log2(int x) {
 
 
 void sortSpeedUp(const float data[], const int len, float result[]) {
-    if (mode == LOCAL) {
-        for (int i = 0; i < len; i++)
-            result[i] = data[i];
-        parallelSort(result, len, log2(MAX_THREADS) - 1);
-    }
+    for (int i = 0; i < len; i++)
+        result[i] = data[i];
+    parallelSort(result, len, log2(MAX_THREADS) - 1);
 }
