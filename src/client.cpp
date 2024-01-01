@@ -1,17 +1,68 @@
 #include <iostream>
 #include <ctime>
-#include <cstring>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include <thread>
 #include "common.h"
 #include "net.hpp"
 
-float floatData[DATANUM];
+static int sumSocket, maxSocket;
+static int sortSockets[SORT_SOCKET_NUM];
 
-// Template for client
+
+int connectToServer(sockaddr_in serverAddr) {
+    int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (clientSocket == -1) {
+        std::cerr << "Error creating socket" << std::endl;
+        return -1;
+    }
+    
+    if (connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
+        std::cerr << "Error connecting to server" << std::endl;
+        close(clientSocket);
+        return -1;
+    }
+
+    return clientSocket;
+}
+
+
 int clientConnect(const char* server_ip, const int server_port) {
+    sockaddr_in serverAddr;
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = inet_addr(server_ip);
+    serverAddr.sin_port = htons(server_port);
+
+    sumSocket = connectToServer(serverAddr);
+    if (sumSocket == -1)
+        return -1;
+    std::cout << "Sum socket connected" << std::endl;
+
+    maxSocket = connectToServer(serverAddr);
+    if (maxSocket == -1)
+        return -1;
+    std::cout << "Max socket connected" << std::endl;
+
+    for (int i = 0; i < SORT_SOCKET_NUM; i++) {
+        sortSockets[i] = connectToServer(serverAddr);
+        if (sortSockets[i] == -1)
+            return -1;
+    }
+    std::cout << "Sort sockets connected" << std::endl;
+
+    std::cout << "Connected to server" << std::endl << std::endl;
+
+    return 0;
+}
+
+
+void clientCloseSockets() {
+    close(sumSocket);
+    close(maxSocket);
+    for (int i = 0; i < SORT_SOCKET_NUM; i++)
+        close(sortSockets[i]);
+}
+
+
+int clientConnectTest(const char* server_ip, const int server_port) {
     int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (clientSocket == -1) {
         std::cerr << "Error creating socket" << std::endl;
@@ -38,6 +89,7 @@ int clientConnect(const char* server_ip, const int server_port) {
     }
 
     timespec start, end;
+    float* floatData = new float[DATANUM];
 
     clock_gettime(CLOCK_MONOTONIC, &start);
     int len = recvArray(clientSocket, floatData);
@@ -50,6 +102,7 @@ int clientConnect(const char* server_ip, const int server_port) {
     std::cout << "Receiving array time consumed: " << time_consumed << "s" << std::endl;
 
     close(clientSocket);
+    delete[] floatData;
 
     return 0;
 }

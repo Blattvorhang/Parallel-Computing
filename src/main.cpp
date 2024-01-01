@@ -225,16 +225,18 @@ int main(int argc, char const *argv[]) {
         std::cout << std::endl;
 
         /* speedup ratio */
-        std::cout << "--- Speedup ratio ---" << std::endl;
-        sum_speedup_ratio = original_sum_time / speedup_sum_time;
-        max_speedup_ratio = original_max_time / speedup_max_time;
-        sort_speedup_ratio = original_sort_time / speedup_sort_time;
-        speedup_ratio = original_time / speedup_time;
-        std::cout << "  Sum speedup ratio: " << sum_speedup_ratio << std::endl;
-        std::cout << "  Max speedup ratio: " << max_speedup_ratio << std::endl;
-        std::cout << " Sort speedup ratio: " << sort_speedup_ratio << std::endl;
-        std::cout << "Total speedup ratio: " << speedup_ratio << std::endl;
-        std::cout << std::endl;
+        if (mode != SERVER) {
+            std::cout << "--- Speedup ratio ---" << std::endl;
+            sum_speedup_ratio = original_sum_time / speedup_sum_time;
+            max_speedup_ratio = original_max_time / speedup_max_time;
+            sort_speedup_ratio = original_sort_time / speedup_sort_time;
+            speedup_ratio = original_time / speedup_time;
+            std::cout << "  Sum speedup ratio: " << sum_speedup_ratio << std::endl;
+            std::cout << "  Max speedup ratio: " << max_speedup_ratio << std::endl;
+            std::cout << " Sort speedup ratio: " << sort_speedup_ratio << std::endl;
+            std::cout << "Total speedup ratio: " << speedup_ratio << std::endl;
+            std::cout << std::endl;
+        }
     }
 
     return 0;

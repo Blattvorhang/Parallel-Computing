@@ -5,6 +5,7 @@
 #define MAX_THREADS 64
 #define SUBDATANUM 2000000
 #define DATANUM (SUBDATANUM * MAX_THREADS)   /* total number of data */
+
 #define ACCESS(data) log(sqrt(data))
 #define ACCESSF(data) logf(sqrtf(data))
 
