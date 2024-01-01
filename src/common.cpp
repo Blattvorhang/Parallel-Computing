@@ -157,8 +157,6 @@ void run_speedup(
         clientSort(data, len, result);
         clock_gettime(CLOCK_REALTIME, &end);
         sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
-
-        clientCloseSockets();
     }
 
     else if (mode == SERVER) {
@@ -176,7 +174,5 @@ void run_speedup(
         serverSort(data, len, result);
         clock_gettime(CLOCK_REALTIME, &end);
         sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
-
-        serverCloseSockets();
     }
 }

@@ -185,6 +185,7 @@ int main(int argc, char const *argv[]) {
         }
     }
 
+    /* time test */
     double original_time, speedup_time;
     double original_sum_time, original_max_time, original_sort_time;
     double speedup_sum_time, speedup_max_time, speedup_sort_time;
@@ -249,6 +250,12 @@ int main(int argc, char const *argv[]) {
             std::cout << std::endl;
         }
     }
+
+    /* disconnect from server */
+    if (mode == CLIENT)
+        clientCloseSockets();
+    else if (mode == SERVER)
+        serverCloseSockets();
 
     return 0;
 }
