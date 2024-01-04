@@ -8,7 +8,7 @@
 #include "net.hpp"
 
 #define INIT_SHUFFLE 1  // define whether to shuffle the data before sorting
-#define TEST_NUM 1  // number of times to test, for calculating the average time
+#define TEST_NUM 5  // number of times to test, for calculating the average time
 
 RunningMode mode;
 
@@ -250,6 +250,17 @@ int main(int argc, char const *argv[]) {
             std::cout << std::endl;
         }
     }
+
+    // /* synchronize before disconnecting */
+    // int sync_ret;
+    // if (mode == CLIENT)
+    //     sync_ret = clientSync();
+    // else if (mode == SERVER)
+    //     sync_ret = serverSync();
+    // if (sync_ret == -1) {
+    //     std::cerr << "Error synchronizing" << std::endl;
+    //     return 1;
+    // }
 
     /* disconnect from server */
     if (mode == CLIENT)

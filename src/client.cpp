@@ -7,24 +7,29 @@
 
 static int clientSocket;
 static int sumSocket, maxSocket;
-static int sortSockets[SORT_SOCKET_NUM];
+static int sortSocket;
+//static int sortSockets[SORT_SOCKET_NUM];
 
 
 float clientSum(const float data[], const int len) {
     const float* client_data = data;
     const int client_len = len * SEP_ALPHA;
 
+    // Receive the sum from server asynchronously
+    float server_sum;
+    std::thread recvThread(safeRecv, sumSocket, &server_sum, sizeof(server_sum), 0);
+    
+    // Calculate the sum
     float client_sum = sumSpeedUp(client_data, client_len);
 
-    float server_sum;
-    ssize_t bytesRecv = safeRecv(sumSocket, &server_sum, sizeof(server_sum), 0);
-    if (bytesRecv == -1) {
-        std::cerr << "Error receiving sum" << std::endl;
-        return -1;
-    }
+    // Wait for the sum from server
+    recvThread.join();
 
-    //std::cout << "Client sum: " << client_sum << std::endl;
-    //std::cout << "Server sum: " << server_sum << std::endl;
+    //safeRecv(clientSocket, &server_sum, sizeof(server_sum), 0);
+
+    // std::cout << "Client sum: " << client_sum << std::endl;
+    // std::cout << "Server sum: " << server_sum << std::endl;
+    // std::cout << std::endl;
 
     return client_sum + server_sum;
 }
@@ -34,17 +39,21 @@ float clientMax(const float data[], const int len) {
     const float* client_data = data;
     const int client_len = len * SEP_ALPHA;
 
+    // Receive the max from server asynchronously
+    float server_max;
+    std::thread recvThread(safeRecv, maxSocket, &server_max, sizeof(server_max), 0);
+
+    // Calculate the max
     float client_max = maxSpeedUp(client_data, client_len);
 
-    float server_max;
-    ssize_t bytesRecv = safeRecv(maxSocket, &server_max, sizeof(server_max), 0);
-    if (bytesRecv == -1) {
-        std::cerr << "Error receiving max" << std::endl;
-        return -1;
-    }
+    // Wait for the max from server
+    recvThread.join();
 
-    //std::cout << "Client max: " << client_max << std::endl;
-    //std::cout << "Server max: " << server_max << std::endl;
+    //safeRecv(clientSocket, &server_max, sizeof(server_max), 0);
+
+    // std::cout << "Client max: " << client_max << std::endl;
+    // std::cout << "Server max: " << server_max << std::endl;
+    // std::cout << std::endl;
 
     return client_max > server_max ? client_max : server_max;
 }
@@ -54,18 +63,24 @@ void clientSort(const float data[], const int len, float result[]) {
     const float* client_data = data;
     const int client_len = len * SEP_ALPHA;
 
+    // TODO: asynchronously receive data in blocks
     float* client_result = new float[client_len];
+    float* server_result = new float[len - client_len];
+
+    // Receive the sorted array from server asynchronously
+    //std::thread recvThread(safeRecvArray, sortSockets[0], server_result, SORT_BLOCK_NUM);
+    std::thread recvThread(recvArray<float>, sortSocket, server_result);
+
+
+    // Sort the array
     sortSpeedUp(client_data, client_len, client_result);
 
-    // TODO: asynchronously receive data in blocks
-    float* server_result = new float[len - client_len];
-    int server_len = recvArray(sortSockets[0], server_result);
-    if (server_len == -1) {
-        std::cerr << "Error receiving array" << std::endl;
-        return;
-    }
+    // Wait for the sorted array from server
+    recvThread.join();
 
-    merge(result, client_result, server_result, client_len, server_len);
+    //recvArray(clientSocket, server_result);
+
+    merge(result, client_result, server_result, client_len, len - client_len);
 
     delete[] client_result;
     delete[] server_result;
@@ -113,6 +128,7 @@ int connectToServer(sockaddr_in serverAddr) {
         return -1;
     }
 
+    //setSocketTimeout(clientSocket, 100);
     return clientSocket;
 }
 
@@ -138,11 +154,9 @@ int clientConnect(const char* server_ip, const int server_port) {
         return -1;
     std::cout << "Max socket connected" << std::endl;
 
-    for (int i = 0; i < SORT_SOCKET_NUM; i++) {
-        sortSockets[i] = connectToServer(serverAddr);
-        if (sortSockets[i] == -1)
-            return -1;
-    }
+    sortSocket = connectToServer(serverAddr);
+    if (sortSocket == -1)
+        return -1;
     std::cout << "Sort sockets connected" << std::endl;
 
     std::cout << "Connected to server" << std::endl << std::endl;
@@ -154,9 +168,10 @@ int clientConnect(const char* server_ip, const int server_port) {
 void clientDisconnect() {
     close(sumSocket);
     close(maxSocket);
-    for (int i = 0; i < SORT_SOCKET_NUM; i++)
-        close(sortSockets[i]);
+    close(sortSocket);
     close(clientSocket);
+
+    std::cout << "Disconnected from server" << std::endl;
 }
 
 
