@@ -62,8 +62,6 @@ void clientSort(const float data[], const int len, float result[]) {
     // Wait for the sorted array from server
     recvThread.join();
 
-    //recvArray(clientSocket, server_result);
-
     merge(result, client_result, server_result, client_len, len - client_len);
 
     delete[] client_result;

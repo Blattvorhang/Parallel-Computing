@@ -5,7 +5,6 @@
 static int serverSocket, clientSocket;
 static int sumSocket, maxSocket;
 static int sortSocket;
-//static int sortSockets[SORT_SOCKET_NUM];
 
 
 float serverSum(const float data[], const int len) {
@@ -14,7 +13,6 @@ float serverSum(const float data[], const int len) {
 
     float server_sum = sumSpeedUp(server_data, server_len);
     ssize_t bytesSent = safeSend(sumSocket, &server_sum, sizeof(server_sum), 0);
-    //ssize_t bytesSent = safeSend(clientSocket, &server_sum, sizeof(server_sum), 0);
     if (bytesSent == -1) {
         std::cerr << "Error sending sum" << std::endl;
         return -1;
@@ -30,7 +28,6 @@ float serverMax(const float data[], const int len) {
 
     float server_max = maxSpeedUp(server_data, server_len);
     ssize_t bytesSent = safeSend(maxSocket, &server_max, sizeof(server_max), 0);
-    //ssize_t bytesSent = safeSend(clientSocket, &server_max, sizeof(server_max), 0);
     if (bytesSent == -1) {
         std::cerr << "Error sending max" << std::endl;
         return -1;
@@ -43,15 +40,11 @@ float serverMax(const float data[], const int len) {
 void serverSort(const float data[], const int len, float result[]) {
     const float* server_data = data + int(len * SEP_ALPHA);
     const int server_len = len - int(len * SEP_ALPHA);
-    //const int block_len = server_len / SORT_BLOCK_NUM;
 
     float* server_result = new float[server_len];
     sortSpeedUp(server_data, server_len, server_result);
 
-    // TODO: asynchronously send data in blocks
-    //int ret = safeSendArray(sortSockets[0], server_result, server_len, SORT_BLOCK_NUM);
     int ret = sendArray(sortSocket, server_result, server_len);
-    //int ret = sendArray(clientSocket, server_result, server_len);
     if (ret == -1) {
         std::cerr << "Error sending array" << std::endl;
     }

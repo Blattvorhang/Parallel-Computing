@@ -9,7 +9,7 @@
 
 #define INIT_SHUFFLE 1  // define whether to shuffle the data before sorting
 #define TEST_NUM 1  // number of times to test, for calculating the average time
-#define SKIP_ORI 0
+#define SKIP_ORI 0  // define whether to skip original version
 
 RunningMode mode;
 
@@ -90,7 +90,7 @@ double timeTest(
     if (sorted_flag)
         std::cout << "Result is sorted." << std::endl;
     else
-        std::cout << "Result is not sorted." << std::endl;
+        std::cout << "Result is NOT sorted." << std::endl;
 
     return time_consumed;
 }
