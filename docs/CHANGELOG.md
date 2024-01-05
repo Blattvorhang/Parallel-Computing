@@ -362,33 +362,34 @@ Total speedup ratio: 6.54184
 编写好了基数排序算法
 改写了cuda.cu和cuda.cuh
 删除了是否使用cuda的选项
-改写了speedup，使用cpu，gpu同时进行排序任务，单机加速比成功到10
+改写了speedup，使用cpu，gpu同时进行排序任务，单机加速比成功到11.3
+新增了access.cu和access.cuh，是用cuda模拟log sqrt任务，增加计算量
 
 ------------------------------
 Time test 1/1 begins.
 
 --- Original version ---
-  Sum time consumed: 1.1636
-  Max time consumed: 1.18698
- Sort time consumed: 125.008
-Total time consumed: 127.358
+  Sum time consumed: 1.12203
+  Max time consumed: 1.19147
+ Sort time consumed: 126.692
+Total time consumed: 129.005
 
 sum: 1.13072e+09
 max: 9.33377
 Result is sorted.
 
 --- Speedup version ---
-  Sum time consumed: 0.150915
-  Max time consumed: 0.128134
- Sort time consumed: 11.5044
-Total time consumed: 11.7834
+  Sum time consumed: 0.143074
+  Max time consumed: 0.132925
+ Sort time consumed: 11.0408
+Total time consumed: 11.3168
 
 sum: 1.13072e+09
 max: 9.33377
 Result is sorted.
 
 --- Speedup ratio ---
-  Sum speedup ratio: 7.71031
-  Max speedup ratio: 9.26362
- Sort speedup ratio: 10.8661
-Total speedup ratio: 10.8083
+  Sum speedup ratio: 7.84235
+  Max speedup ratio: 8.96347
+ Sort speedup ratio: 11.4749
+Total speedup ratio: 11.3995
