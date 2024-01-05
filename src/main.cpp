@@ -8,7 +8,7 @@
 #include "net.hpp"
 
 #define INIT_SHUFFLE 1  // define whether to shuffle the data before sorting
-#define TEST_NUM 5  // number of times to test, for calculating the average time
+#define TEST_NUM 1  // number of times to test, for calculating the average time
 #define SKIP_ORI 0
 
 RunningMode mode;

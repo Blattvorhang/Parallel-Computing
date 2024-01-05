@@ -304,69 +304,7 @@ Total speedup ratio: 4.58144
 使用cuda需要确保输入的排序数字个数为2的幂次，在函数内填充了数据至2的幂次，排序后再删除
 增加了cmake文件关于cuda的配置
 在common.h中增加了CUDA的宏定义，用于判断是否使用CUDA加速
-```
-Time test 1/1 begins.
-
---- Original version ---
-  Sum time consumed: 1.08735
-  Max time consumed: 1.17587
- Sort time consumed: 117.385
-Total time consumed: 119.648
-
-sum: 1.13072e+09
-max: 9.33377
-Result is sorted.
-
---- Speedup version ---
-  Sum time consumed: 0.127932
-  Max time consumed: 0.147056
- Sort time consumed: 0.573649
-Total time consumed: 0.848637
-
-sum: 1.13072e+09
-max: 9.33377
-Result is sorted.
-
---- Speedup ratio ---
-  Sum speedup ratio: 8.4995
-  Max speedup ratio: 7.99607
- Sort speedup ratio: 204.629
-Total speedup ratio: 140.989
-```
-可以看出cuda加速非常猛，下面是使用了fill填充至2的n次幂后的速度（不知道为什么没有填充结果也对）
-填充的选项在cuda.cuh中
-
-```
-------------------------------
-Time test 1/1 begins.
-
---- Original version ---
-  Sum time consumed: 1.02786
-  Max time consumed: 1.17677
- Sort time consumed: 108.047
-Total time consumed: 110.252
-
-sum: 1.13072e+09
-max: 9.33377
-Result is sorted.
-
---- Speedup version ---
-  Sum time consumed: 0.121614
-  Max time consumed: 0.132329
- Sort time consumed: 1.39535
-Total time consumed: 1.64929
-
-sum: 1.13072e+09
-max: 9.33377
-Result is sorted.
-
---- Speedup ratio ---
-  Sum speedup ratio: 8.45184
-  Max speedup ratio: 8.89274
- Sort speedup ratio: 77.434
-Total speedup ratio: 66.8481
-
-```
+VMware没有办法配置显卡，暂时搁置，准备换wsl使用
 
 # 2023.12.31 (Blattvorhang)
 TCP连接需要确定端口号，虚拟机（WSL和VMWare）默认使用NAT模式，会进行端口映射，导致应用程序的实际端口号与运行时规定的不同，因此要先将虚拟机网络设置改为桥接模式。使用RJ-45网线连接配置为局域网，虚拟机手动指定静态IP地址，使用对应端口连接成功。
@@ -418,3 +356,39 @@ Total speedup ratio: 6.54184
 |   0.4   |      19.5      |
 
 最终决定选用0.5的比例来分割。
+
+# 2024.1.5（KevinTung）
+使用wsl配置好了CUDA
+编写好了基数排序算法
+改写了cuda.cu和cuda.cuh
+删除了是否使用cuda的选项
+改写了speedup，使用cpu，gpu同时进行排序任务，单机加速比成功到10
+
+------------------------------
+Time test 1/1 begins.
+
+--- Original version ---
+  Sum time consumed: 1.1636
+  Max time consumed: 1.18698
+ Sort time consumed: 125.008
+Total time consumed: 127.358
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+  Sum time consumed: 0.150915
+  Max time consumed: 0.128134
+ Sort time consumed: 11.5044
+Total time consumed: 11.7834
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup ratio ---
+  Sum speedup ratio: 7.71031
+  Max speedup ratio: 9.26362
+ Sort speedup ratio: 10.8661
+Total speedup ratio: 10.8083

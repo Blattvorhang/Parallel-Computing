@@ -9,8 +9,6 @@
 #define ACCESS(data) log(sqrt(data))
 #define ACCESSF(data) logf(sqrtf(data))
 
-#define CUDA 0
-
 enum RunningMode {
     LOCAL,
     CLIENT,

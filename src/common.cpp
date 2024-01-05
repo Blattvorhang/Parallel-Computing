@@ -133,11 +133,7 @@ void run_speedup(
         max_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
 
         clock_gettime(CLOCK_REALTIME, &start);
-#if CUDA
-        sortSpeedUpCuda(data, len, result);
-#else
         sortSpeedUp(data, len, result);
-#endif
         clock_gettime(CLOCK_REALTIME, &end);
         sort_time = end.tv_sec - start.tv_sec + (end.tv_nsec - start.tv_nsec) / 1e9;
     }
