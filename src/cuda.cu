@@ -1,128 +1,164 @@
-#include <cuda_runtime.h>
-#include <cmath>
-#include <algorithm>
-#include <vector>
-#include <cfloat>
-#include "cuda.cuh"
-#include "common.h"
-#define NThreads 8
+#include<iostream>
+#include<math.h>
+#include<cuda_runtime.h>
+#include"device_launch_parameters.h" 
+#include<fstream>
 
-extern RunningMode mode;
+#define MAX_NUM_LISTS 256
 
-#if FILL
+using namespace std;
+int num_lists = 128; // the number of parallel threads
 
-__device__ void swap(float &a, float &b) {
-    float t = a;
-    a = b;
-    b = t;
+__device__ void radix_sort(float* const data_0, float* const data_1, \
+    int num_lists, int num_data, int tid);
+__device__ void merge_list(const float* src_data, float* const dest_list, \
+    int num_lists, int num_data, int tid);
+__device__ void preprocess_float(float* const data, int num_lists, int num_data, int tid);
+__device__ void Aeprocess_float(float* const data, int num_lists, int num_data, int tid);
+
+__global__ void GPU_radix_sort(float* const src_data, float* const dest_data, \
+    int num_lists, int num_data)
+{
+    // temp_data:temporarily store the data
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    // special preprocessing of IEEE floating-point numbers before applying radix sort
+    preprocess_float(src_data, num_lists, num_data, tid);
+    __syncthreads();
+    // no shared memory
+    radix_sort(src_data, dest_data, num_lists, num_data, tid);
+    __syncthreads();
+    merge_list(src_data, dest_data, num_lists, num_data, tid);
+    __syncthreads();
+    Aeprocess_float(dest_data, num_lists, num_data, tid);
+    __syncthreads();
 }
 
-__global__ void bitonicSortKernel(float *arr, int numElements) {
-    extern __shared__ float shared_arr[];
-    const unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
+__device__ void preprocess_float(float* const src_data, int num_lists, int num_data, int tid)
+{
+    for (int i = tid; i < num_data; i += num_lists)
+    {
+        unsigned int* data_temp = (unsigned int*)(&src_data[i]);
+        *data_temp = (*data_temp >> 31 & 0x1) ? ~(*data_temp) : (*data_temp) | 0x80000000;
+    }
+}
 
-    shared_arr[tid] = (tid < numElements) ? arr[tid] : FLT_MAX; // Fill with FLT_MAX for padding
+__device__ void Aeprocess_float(float* const data, int num_lists, int num_data, int tid)
+{
+    for (int i = tid; i < num_data; i += num_lists)
+    {
+        unsigned int* data_temp = (unsigned int*)(&data[i]);
+        *data_temp = (*data_temp >> 31 & 0x1) ? (*data_temp) & 0x7fffffff : ~(*data_temp);
+    }
+}
+
+
+__device__ void radix_sort(float* const data_0, float* const data_1, \
+    int num_lists, int num_data, int tid)
+{
+    for (int bit = 0; bit < 32; bit++)
+    {
+        int bit_mask = (1 << bit);
+        int count_0 = 0;
+        int count_1 = 0;
+        for (int i = tid; i < num_data; i += num_lists)
+        {
+            unsigned int* temp = (unsigned int*)&data_0[i];
+            if (*temp & bit_mask)
+            {
+                data_1[tid + count_1 * num_lists] = data_0[i]; //bug 在这里 等于时会做强制类型转化
+                count_1 += 1;
+            }
+            else {
+                data_0[tid + count_0 * num_lists] = data_0[i];
+                count_0 += 1;
+            }
+        }
+        for (int j = 0; j < count_1; j++)
+        {
+            data_0[tid + count_0 * num_lists + j * num_lists] = data_1[tid + j * num_lists];
+        }
+    }
+}
+
+__device__ void merge_list(const float* src_data, float* const dest_list, \
+    int num_lists, int num_data, int tid)
+{
+    int num_per_list = ceil((float)num_data / num_lists);
+    __shared__ int list_index[MAX_NUM_LISTS];
+    __shared__ float record_val[MAX_NUM_LISTS];
+    __shared__ int record_tid[MAX_NUM_LISTS];
+    list_index[tid] = 0;
+    record_val[tid] = 0;
+    record_tid[tid] = tid;
     __syncthreads();
-
-    for (unsigned int i = 2; i <= numElements; i <<= 1) {
-        for (unsigned int j = i >> 1; j > 0; j >>= 1) {
-            unsigned int tid_comp = tid ^ j;
-            if (tid_comp > tid) {
-                if ((tid & i) == 0) { // Ascending
-                    if (shared_arr[tid] > shared_arr[tid_comp]) {
-                        swap(shared_arr[tid], shared_arr[tid_comp]);
-                    }
-                } else { // Descending
-                    if (shared_arr[tid] < shared_arr[tid_comp]) {
-                        swap(shared_arr[tid], shared_arr[tid_comp]);
-                    }
+    for (int i = 0; i < num_data; i++)
+    {
+        record_val[tid] = 0;
+        record_tid[tid] = tid; // bug2 每次都要进行初始化
+        if (list_index[tid] < num_per_list)
+        {
+            int src_index = tid + list_index[tid] * num_lists;
+            if (src_index < num_data)
+            {
+                record_val[tid] = src_data[src_index];
+            }
+            else {
+                unsigned int* temp = (unsigned int*)&record_val[tid];
+                *temp = 0xffffffff;
+            }
+        }
+        else {
+            unsigned int* temp = (unsigned int*)&record_val[tid];
+            *temp = 0xffffffff;
+        }
+        __syncthreads();
+        int tid_max = num_lists >> 1;
+        while (tid_max != 0)
+        {
+            if (tid < tid_max)
+            {
+                unsigned int* temp1 = (unsigned int*)&record_val[tid];
+                unsigned int* temp2 = (unsigned int*)&record_val[tid + tid_max];
+                if (*temp2 < *temp1)
+                {
+                    record_val[tid] = record_val[tid + tid_max];
+                    record_tid[tid] = record_tid[tid + tid_max];
                 }
             }
+            tid_max = tid_max >> 1;
             __syncthreads();
         }
-    }
-    if (tid < numElements) {
-        arr[tid] = shared_arr[tid];
-    }
-}
-
-void sortSpeedUpCuda(const float data[], const int len, float result[]) {
-    if (mode == LOCAL) {
-        // Calculate the nearest power of 2 greater than or equal to len
-        int power_of_2_len = 1;
-        while (power_of_2_len < len) {
-            power_of_2_len <<= 1;
+        if (tid == 0)
+        {
+            list_index[record_tid[0]]++;
+            dest_list[i] = record_val[0];
         }
-
-        // Create a vector to hold the extended and padded data
-        std::vector<float> extended_data(power_of_2_len, 0.0f);
-
-        // Copy the input data into the extended_data vector
-        for (int i = 0; i < len; i++) {
-            extended_data[i] = data[i];
-        }
-
-        float *dev_data;
-        cudaMalloc((void **)&dev_data, power_of_2_len * sizeof(float));
-        cudaMemcpy(dev_data, extended_data.data(), power_of_2_len * sizeof(float), cudaMemcpyHostToDevice);
-
-        dim3 blocks(power_of_2_len / NThreads, 1);
-        dim3 threads(NThreads, 1);
-
-        bitonicSortKernel<<<blocks, threads, power_of_2_len * sizeof(float)>>>(dev_data, power_of_2_len);
-
-        cudaMemcpy(result, dev_data, len * sizeof(float), cudaMemcpyDeviceToHost);
-        cudaFree(dev_data);
-    }
-}
-#else
-__device__ void swap(float &a, float &b) {
-    float t = a;
-    a = b;
-    b = t;
-}
-
-__global__ void bitonicSortKernel(float *arr, int numElements) {
-    extern __shared__ float shared_arr[];
-    const unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    shared_arr[tid] = arr[tid];
-    __syncthreads();
-
-    for (unsigned int i = 2; i <= numElements; i <<= 1) {
-        for (unsigned int j = i >> 1; j > 0; j >>= 1) {
-            unsigned int tid_comp = tid ^ j;
-            if (tid_comp > tid) {
-                if ((tid & i) == 0) { // Ascending
-                    if (shared_arr[tid] > shared_arr[tid_comp]) {
-                        swap(shared_arr[tid], shared_arr[tid_comp]);
-                    }
-                } else { // Descending
-                    if (shared_arr[tid] < shared_arr[tid_comp]) {
-                        swap(shared_arr[tid], shared_arr[tid_comp]);
-                    }
-                }
-            }
-            __syncthreads();
-        }
-    }
-    arr[tid] = shared_arr[tid];
-}
-
-void sortSpeedUpCuda(const float data[], const int len, float result[]) {
-    if (mode == LOCAL) {
-        // Assuming len is already a power of two
-        float *dev_data;
-        cudaMalloc((void **)&dev_data, len * sizeof(float));
-        cudaMemcpy(dev_data, data, len * sizeof(float), cudaMemcpyHostToDevice);
-
-        dim3 blocks(len / NThreads, 1);
-        dim3 threads(NThreads, 1);
-
-        bitonicSortKernel<<<blocks, threads, len * sizeof(float)>>>(dev_data, len);
-
-        cudaMemcpy(result, dev_data, len * sizeof(float), cudaMemcpyDeviceToHost);
-        cudaFree(dev_data);
+        __syncthreads();
     }
 }
 
-#endif
+void sortSpeedUpCuda(const float data[], const int len, float result[])
+{
+
+    float* datas = new float[len];
+    float* src_data, * dest_data;
+
+    memcpy(datas, data, sizeof(float) * len);
+    ofstream  outfile("./data.bin", ios::out | ios::binary);
+    outfile.write((char*)datas, sizeof(float) * len);
+    outfile.close();
+    ifstream infile("./data.bin", ios::in | ios::binary);
+    infile.read((char*)datas, sizeof(float) * len);
+    cudaMalloc((void**)&src_data, sizeof(float) * len);
+    cudaMalloc((void**)&dest_data, sizeof(float) * len);
+    cudaMemcpy(src_data, datas, sizeof(float) * len, cudaMemcpyHostToDevice);
+
+    GPU_radix_sort << <1, num_lists >> > (src_data, dest_data, num_lists, len);
+    cudaMemcpy(datas, dest_data, sizeof(float) * len, cudaMemcpyDeviceToHost);
+
+    memcpy(result, datas, sizeof(float) * len);
+    delete [] datas;
+    // 释放 GPU 上分配的内存
+    cudaFree(src_data);
+    cudaFree(dest_data);
+}

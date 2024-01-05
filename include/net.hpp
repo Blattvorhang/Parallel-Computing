@@ -29,8 +29,8 @@ int recvArray(int socket, T data[]);
 
 int setSocketTimeout(int socket, int timeout);
 
-int serverConnect(const int server_port, const float data[], const int len);
 int clientConnect(const char* server_ip, const int server_port);
+int serverConnect(const int server_port, const float data[], const int len);
 
 int clientSync();
 int serverSync();
