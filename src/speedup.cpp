@@ -141,24 +141,25 @@ inline int log2(int x) {
 
 
 void sortSpeedUp(const float data[], const int len, float result[]) {
+    const double gpu_ratio = 0.5;
+    const int gpu_len = int(len * gpu_ratio);
+    const int cpu_len = len - gpu_len;
 
-    float* data1 = new float[len/2];
-    float* data2 = new float[len/2];
-    float* result1 = new float[len/2];
+    const float* gpu_data = data;
+    float* gpu_result = new float[gpu_len];
+    float* cpu_data = new float[cpu_len];
 
     // 使用 std::copy 进行高效拷贝
-    std::copy(data, data + len / 2, data1);
-    std::copy(data + len / 2, data + len, data2);
+    std::copy(data + gpu_len, data + len, cpu_data);
 
-    std::thread thread1(sortSpeedUpCuda, data1, len/2, result1); // 创建线程1 是用GPU进行计算
-    std::thread thread2(parallelSort, data2, len/2, log2(MAX_THREADS) - 1); // 创建线程2，是用CPU进行计算
+    std::thread thread1(sortSpeedUpCuda, gpu_data, gpu_len, gpu_result); // 创建线程1 是用GPU进行计算
+    std::thread thread2(parallelSort, cpu_data, cpu_len, log2(MAX_THREADS) - 1); // 创建线程2，是用CPU进行计算
 
     thread1.join();
     thread2.join();
 
-    merge(result, result1, data2, len/2, len/2); //归并排序
+    merge(result, gpu_result, cpu_data, gpu_len, cpu_len); //归并排序
 
-    delete [] data1;
-    delete [] data2;
-    delete [] result1;
+    delete [] gpu_result;
+    delete [] cpu_data;
 }

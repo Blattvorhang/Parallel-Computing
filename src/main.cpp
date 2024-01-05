@@ -9,7 +9,7 @@
 
 #define INIT_SHUFFLE 1  // define whether to shuffle the data before sorting
 #define TEST_NUM 1  // number of times to test, for calculating the average time
-#define SKIP_ORI 0
+#define SKIP_ORI 1
 
 RunningMode mode;
 
@@ -81,7 +81,7 @@ double timeTest(
     for (size_t i = 0; i < DATANUM - 1; i++)
     {
         //std::cout << result[i] << " ";
-        if (ACCESS(result[i]) > ACCESS(result[i + 1]))
+        if (result[i] > result[i + 1])
         {
             sorted_flag = 0;
             break;
