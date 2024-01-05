@@ -1,7 +1,7 @@
 #include<iostream>
 #include<math.h>
 #include<cuda_runtime.h>
-#include"device_launch_parameters.h" 
+#include"device_launch_parameters.h"
 #include<fstream>
 
 #define MAX_NUM_LISTS 256
@@ -16,21 +16,15 @@ __device__ void merge_list(const float* src_data, float* const dest_list, \
 __device__ void preprocess_float(float* const data, int num_lists, int num_data, int tid);
 __device__ void Aeprocess_float(float* const data, int num_lists, int num_data, int tid);
 
-__global__ void GPU_radix_sort(float* const src_data, float* const dest_data, \
-    int num_lists, int num_data)
+__global__ void GPU_radix_sort(float* const src_data, float* const dest_data, int num_lists, int num_data)
 {
-    // temp_data:temporarily store the data
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    // special preprocessing of IEEE floating-point numbers before applying radix sort
+
+    // 仅在需要时进行同步
     preprocess_float(src_data, num_lists, num_data, tid);
-    __syncthreads();
-    // no shared memory
     radix_sort(src_data, dest_data, num_lists, num_data, tid);
-    __syncthreads();
     merge_list(src_data, dest_data, num_lists, num_data, tid);
-    __syncthreads();
     Aeprocess_float(dest_data, num_lists, num_data, tid);
-    __syncthreads();
 }
 
 __device__ void preprocess_float(float* const src_data, int num_lists, int num_data, int tid)
@@ -139,26 +133,17 @@ __device__ void merge_list(const float* src_data, float* const dest_list, \
 
 void sortSpeedUpCuda(const float data[], const int len, float result[])
 {
-
-    float* datas = new float[len];
     float* src_data, * dest_data;
-
-    memcpy(datas, data, sizeof(float) * len);
-    ofstream  outfile("./data.bin", ios::out | ios::binary);
-    outfile.write((char*)datas, sizeof(float) * len);
-    outfile.close();
-    ifstream infile("./data.bin", ios::in | ios::binary);
-    infile.read((char*)datas, sizeof(float) * len);
     cudaMalloc((void**)&src_data, sizeof(float) * len);
     cudaMalloc((void**)&dest_data, sizeof(float) * len);
-    cudaMemcpy(src_data, datas, sizeof(float) * len, cudaMemcpyHostToDevice);
+    cudaMemcpy(src_data, data, sizeof(float) * len, cudaMemcpyHostToDevice);  // 直接从原始数据传输
 
-    GPU_radix_sort << <1, num_lists >> > (src_data, dest_data, num_lists, len);
-    cudaMemcpy(datas, dest_data, sizeof(float) * len, cudaMemcpyDeviceToHost);
+    // 调整线程块的大小和数量
+    int numBlocks = 1;  // 根据需求调整
+    int numThreadsPerBlock = num_lists;  // 根据需求调整
+    GPU_radix_sort << <numBlocks, numThreadsPerBlock >> > (src_data, dest_data, num_lists, len);
 
-    memcpy(result, datas, sizeof(float) * len);
-    delete [] datas;
-    // 释放 GPU 上分配的内存
+    cudaMemcpy(result, dest_data, sizeof(float) * len, cudaMemcpyDeviceToHost);
     cudaFree(src_data);
     cudaFree(dest_data);
 }

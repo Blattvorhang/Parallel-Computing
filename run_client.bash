@@ -1,2 +1,2 @@
 #!/bin/bash
-./build/bin/SpeedUp_Computing -c "127.0.0.1" 8080
+./build/bin/SpeedUp_Computing -c "192.168.0.5" 2345

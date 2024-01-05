@@ -8,7 +8,8 @@
 #include "net.hpp"
 
 #define INIT_SHUFFLE 1  // define whether to shuffle the data before sorting
-#define TEST_NUM 1  // number of times to test, for calculating the average time
+#define TEST_NUM 5  // number of times to test, for calculating the average time
+#define SKIP_ORI 0
 
 RunningMode mode;
 
@@ -197,6 +198,7 @@ int main(int argc, char const *argv[]) {
         std::cout << "Time test " << i + 1 << "/" << TEST_NUM
             << " begins." << std::endl << std::endl;
 
+#if !SKIP_ORI
         /* original time test */
         std::cout << "--- Original version ---" << std::endl;
         original_time = timeTest(
@@ -209,6 +211,7 @@ int main(int argc, char const *argv[]) {
             ORIGINAL
         );
         std::cout << std::endl;
+#endif
 
         /* wait for synchronization */
         int sync_ret;
@@ -234,6 +237,7 @@ int main(int argc, char const *argv[]) {
         );
         std::cout << std::endl;
 
+#if !SKIP_ORI
         /* speedup ratio */
         if (mode != SERVER) {
             std::cout << "--- Speedup ratio ---" << std::endl;
@@ -247,6 +251,8 @@ int main(int argc, char const *argv[]) {
             std::cout << "Total speedup ratio: " << speedup_ratio << std::endl;
             std::cout << std::endl;
         }
+#endif
+
     }
 
     // /* synchronize before disconnecting */

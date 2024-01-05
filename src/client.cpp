@@ -8,7 +8,6 @@
 static int clientSocket;
 static int sumSocket, maxSocket;
 static int sortSocket;
-//static int sortSockets[SORT_SOCKET_NUM];
 
 
 float clientSum(const float data[], const int len) {
@@ -24,12 +23,6 @@ float clientSum(const float data[], const int len) {
 
     // Wait for the sum from server
     recvThread.join();
-
-    //safeRecv(clientSocket, &server_sum, sizeof(server_sum), 0);
-
-    // std::cout << "Client sum: " << client_sum << std::endl;
-    // std::cout << "Server sum: " << server_sum << std::endl;
-    // std::cout << std::endl;
 
     return client_sum + server_sum;
 }
@@ -49,12 +42,6 @@ float clientMax(const float data[], const int len) {
     // Wait for the max from server
     recvThread.join();
 
-    //safeRecv(clientSocket, &server_max, sizeof(server_max), 0);
-
-    // std::cout << "Client max: " << client_max << std::endl;
-    // std::cout << "Server max: " << server_max << std::endl;
-    // std::cout << std::endl;
-
     return client_max > server_max ? client_max : server_max;
 }
 
@@ -63,14 +50,11 @@ void clientSort(const float data[], const int len, float result[]) {
     const float* client_data = data;
     const int client_len = len * SEP_ALPHA;
 
-    // TODO: asynchronously receive data in blocks
     float* client_result = new float[client_len];
     float* server_result = new float[len - client_len];
 
     // Receive the sorted array from server asynchronously
-    //std::thread recvThread(safeRecvArray, sortSockets[0], server_result, SORT_BLOCK_NUM);
     std::thread recvThread(recvArray<float>, sortSocket, server_result);
-
 
     // Sort the array
     sortSpeedUp(client_data, client_len, client_result);

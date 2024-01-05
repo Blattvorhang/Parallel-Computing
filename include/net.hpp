@@ -10,7 +10,7 @@
 // #define SORT_BLOCK_NUM 8
 // #define SORT_SOCKET_NUM SORT_BLOCK_NUM
 
-const double SEP_ALPHA = 0.6; // client proportion of data
+const double SEP_ALPHA = 0.5; // client proportion of data
 
 // alternatives: 1024, 2048, 4096, 8192, 16384, 32768, 65536
 const int BUFFER_SIZE = 1024;
