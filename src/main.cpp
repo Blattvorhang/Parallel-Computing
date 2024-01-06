@@ -81,7 +81,7 @@ double timeTest(
     for (size_t i = 0; i < DATANUM - 1; i++)
     {
         //std::cout << result[i] << " ";
-        if (ACCESS(result[i]) > ACCESS(result[i + 1]))
+        if (result[i] > result[i + 1])
         {
             sorted_flag = 0;
             break;

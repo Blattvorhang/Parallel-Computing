@@ -1,10 +1,8 @@
 #include <iostream>
 #include <cuda_runtime.h>
 #include <cstdlib>
-
-// 核函数：对每位进行计数排序
-__global__ void countSort(float *data, int len, int exp) {
-    float *output = new float[len];
+#include "access.cuh"
+__global__ void countSort(float* data, float* output, int len, int exp) {
     int i = threadIdx.x + blockDim.x * blockIdx.x;
 
     if (i < len) {
@@ -36,24 +34,24 @@ __global__ void countSort(float *data, int len, int exp) {
             data[i] = output[i];
         }
     }
-
-    delete[] output;
 }
 
-
 void sortSpeedUpCuda(const float data[], const int len, float result[]) {
-    float *dev_data;
+    applyLogSqrt(data,len); //模拟任务负担
+    float *dev_data, *dev_output;
+    
     cudaMalloc((void**)&dev_data, len * sizeof(float));
+    cudaMalloc((void**)&dev_output, len * sizeof(float));  // 为输出数组分配内存
     cudaMemcpy(dev_data, data, len * sizeof(float), cudaMemcpyHostToDevice);
 
-    // 对每一位执行基数排序
     int blockSize = 256;  // 选择一个合适的块大小
     int numBlocks = (len + blockSize - 1) / blockSize;
     for (int exp = 0; exp < 32; exp++) {
-        countSort<<<numBlocks, blockSize>>>(dev_data, len, exp);
+        countSort<<<numBlocks, blockSize>>>(dev_data, dev_output, len, exp);
         cudaDeviceSynchronize();
     }
 
-    cudaMemcpy(result, dev_data, len * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(result, dev_output, len * sizeof(float), cudaMemcpyDeviceToHost);
     cudaFree(dev_data);
+    cudaFree(dev_output);  // 释放输出数组的内存
 }

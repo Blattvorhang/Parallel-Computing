@@ -41,6 +41,7 @@ add_executable(${PROJECT_NAME}
     src/server.cpp
     src/net.cpp
     src/cuda.cu
+    src/access.cu
 )
 
 # add the include directory
