@@ -1,5 +1,6 @@
 #include <iostream>
 #include "speedup.h"
+#include "common.h"
 #include "net.hpp"
 
 static int serverSocket, clientSocket;

@@ -1,6 +1,8 @@
+
 #include <omp.h>        // OpenMP
 #include <immintrin.h>  // SIMD
 #include <chrono>
+#include <iostream>
 #include <thread>
 #include <algorithm>
 #include "cuda.cuh"
@@ -160,7 +162,7 @@ inline int log2(int x) {
 }
 
 void sortSpeedUp(const float data[], const int len, float result[]) {
-    const double gpu_ratio = 0.55;
+    const double gpu_ratio = 0.27;
     const int gpu_len = int(len * gpu_ratio);
     const int cpu_len = len - gpu_len;
 
@@ -170,12 +172,30 @@ void sortSpeedUp(const float data[], const int len, float result[]) {
 
     // 使用 std::copy 进行高效拷贝
     std::copy(data + gpu_len, data + len, cpu_data);
-    
-    std::thread thread1(sortSpeedUpCuda, gpu_data, gpu_len, gpu_result); // 创建线程1 是用GPU进行计算
-    std::thread thread2(parallelSort, cpu_data, cpu_len, log2(MAX_THREADS) - 1); // 创建线程2，是用CPU进行计算
-
+    std::thread thread1(sortSpeedUpCuda, gpu_data, gpu_len, gpu_result); 
+    std::thread thread2(parallelSort, cpu_data, cpu_len, log2(MAX_THREADS) - 1); 
     thread1.join();
     thread2.join();
+    // // 开始测量 GPU 线程的时间
+    // auto start_gpu = std::chrono::high_resolution_clock::now();
+    // std::thread thread1(sortSpeedUpCuda, gpu_data, gpu_len, gpu_result); 
+    // thread1.join();
+    // auto end_gpu = std::chrono::high_resolution_clock::now();
+
+    // // 开始测量 CPU 线程的时间
+    // auto start_cpu = std::chrono::high_resolution_clock::now();
+    // std::thread thread2(parallelSort, cpu_data, cpu_len, log2(MAX_THREADS) - 1); 
+    // thread2.join();
+    // auto end_cpu = std::chrono::high_resolution_clock::now();
+
+    // // ...（合并结果和清理内存）
+
+    // // 计算并打印运行时间
+    // std::chrono::duration<double, std::milli> gpu_time = end_gpu - start_gpu;
+    // std::chrono::duration<double, std::milli> cpu_time = end_cpu - start_cpu;
+
+    // std::cout << "GPU time: " << gpu_time.count() << " ms\n";
+    // std::cout << "CPU time: " << cpu_time.count() << " ms\n";
 
     mergeomp(result, gpu_result, cpu_data, gpu_len, cpu_len); //归并排序
 

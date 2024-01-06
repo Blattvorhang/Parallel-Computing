@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string>
 #include <regex>
@@ -6,6 +7,7 @@
 #include <algorithm>  // only for std::shuffle
 #include "common.h"
 #include "net.hpp"
+
 
 #define INIT_SHUFFLE 1  // define whether to shuffle the data before sorting
 #define TEST_NUM 1  // number of times to test, for calculating the average time
@@ -78,11 +80,15 @@ double timeTest(
     std::cout << "max: " << max_value << std::endl;
 
     int sorted_flag = 1;
+    if(result[1]==0){
+        sorted_flag = 0;
+    }
     for (size_t i = 0; i < DATANUM - 1; i++)
     {
         //std::cout << result[i] << " ";
         if (ACCESS(result[i]) > ACCESS(result[i+1]))
         {
+            
             sorted_flag = 0;
             break;
         }

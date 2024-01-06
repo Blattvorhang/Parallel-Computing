@@ -1,5 +1,4 @@
 #pragma once
-
 #include <cmath>
 
 #define MAX_THREADS 64

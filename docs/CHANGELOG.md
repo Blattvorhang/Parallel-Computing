@@ -427,3 +427,34 @@ Result is sorted.
   Max speedup ratio: 9.63527
  Sort speedup ratio: 14.1561
 Total speedup ratio: 13.9335
+
+进一步优化，发现int存线程索引炸了，改用long long，时间变长一些
+
+------------------------------
+Time test 1/1 begins.
+
+--- Original version ---
+  Sum time consumed: 1.13723
+  Max time consumed: 1.20963
+ Sort time consumed: 126.87
+Total time consumed: 129.217
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+  Sum time consumed: 0.148605
+  Max time consumed: 0.125594
+ Sort time consumed: 14.3801
+Total time consumed: 14.6543
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup ratio ---
+  Sum speedup ratio: 7.65274
+  Max speedup ratio: 9.63128
+ Sort speedup ratio: 8.82265
+Total speedup ratio: 8.81772
