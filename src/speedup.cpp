@@ -162,14 +162,7 @@ void radixSort(float* data, int len) {
 
 void radixSortSpeedUp(float data[],const int len) {
 
-    // 使用OpenMP并行化的基数排序
-    #pragma omp parallel
-    {
-        #pragma omp single nowait
-        {
-            radixSort(data, len);
-        }
-    }
+    radixSort(data, len);
 }
 
 void mergeomp(float result[], const float left[], const float right[], const int left_size, const int right_size) {
