@@ -398,39 +398,7 @@ Total speedup ratio: 11.3995
 # 2024.1.6（KevinTung）
 重写了cuda代码，使用merge排序，速度更快了，代码也相较于基数排序更简单
 改进了加速方法：加速比使用0.55，最后一次归并使用omp
-现在单机运行时间在9s以内，加速比14，已经比双机理论速度更快了（双机最快：9s/2+4.6s(千兆网传输所有数据)=9.1s）
-------------------------------
-Time test 1/1 begins.
-
---- Original version ---
-  Sum time consumed: 1.11993
-  Max time consumed: 1.17635
- Sort time consumed: 121.948
-Total time consumed: 124.244
-
-sum: 1.13072e+09
-max: 9.33377
-Result is sorted.
-
---- Speedup version ---
-  Sum time consumed: 0.180309
-  Max time consumed: 0.122088
- Sort time consumed: 8.6145
-Total time consumed: 8.9169
-
-sum: 1.13072e+09
-max: 9.33377
-Result is sorted.
-
---- Speedup ratio ---
-  Sum speedup ratio: 6.21118
-  Max speedup ratio: 9.63527
- Sort speedup ratio: 14.1561
-Total speedup ratio: 13.9335
-
-进一步优化，发现int存线程索引炸了，改用long long，时间变长一些
-
-------------------------------
+···
 Time test 1/1 begins.
 
 --- Original version ---
@@ -458,3 +426,34 @@ Result is sorted.
   Max speedup ratio: 9.63128
  Sort speedup ratio: 8.82265
 Total speedup ratio: 8.81772
+···
+
+编写了基数排序的cpu版本，比merge更快一些
+现在单机运行时间在10s以内，加速比12，已经比双机理论速度更快了（双机最快：10s/2+5s(千兆网传输所有数据)=10s）
+···
+--- Original version ---
+  Sum time consumed: 1.16718
+  Max time consumed: 1.20018
+ Sort time consumed: 116.004
+Total time consumed: 118.371
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+  Sum time consumed: 0.159357
+  Max time consumed: 0.183435
+ Sort time consumed: 9.58962
+Total time consumed: 9.93241
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup ratio ---
+  Sum speedup ratio: 7.32432
+  Max speedup ratio: 6.54282
+ Sort speedup ratio: 12.0968
+Total speedup ratio: 11.9177
+···

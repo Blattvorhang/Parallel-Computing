@@ -4,6 +4,7 @@
 #include <regex>
 #include <ctime>
 #include <random>
+#include <omp.h>
 #include <algorithm>  // only for std::shuffle
 #include "common.h"
 #include "net.hpp"
@@ -19,6 +20,28 @@ RunningMode mode;
 static float rawFloatData[DATANUM];
 static float original_result[DATANUM], speedup_result[DATANUM];
 
+void parallelShuffle(float* data, int len, std::mt19937& rng) {
+    // 获取线程数
+    int numThreads = omp_get_max_threads();
+
+    // 计算每个线程的工作量
+    int chunkSize = len / numThreads;
+
+    #pragma omp parallel shared(data)
+    {
+        int threadId = omp_get_thread_num();
+
+        // 确定每个线程的工作区间
+        int start = threadId * chunkSize;
+        int end = (threadId == numThreads - 1) ? len : start + chunkSize;
+
+        // 为每个线程创建一个独立的随机数生成器
+        std::mt19937 localRng(rng());
+
+        // 局部打乱
+        std::shuffle(data + start, data + end, localRng);
+    }
+}
 
 void init(float data[], const int len) {
     for (size_t i = 0; i < len; i++)
@@ -29,7 +52,7 @@ void init(float data[], const int len) {
     const uint_fast32_t seed = 42;
     std::mt19937 rng(seed);
     std::cout << "Shuffling data..." << std::endl;
-    std::shuffle(rawFloatData, rawFloatData + len, rng);
+    parallelShuffle(rawFloatData, len, rng);
 #endif
 }
 
