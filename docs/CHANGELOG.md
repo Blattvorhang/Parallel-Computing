@@ -364,7 +364,7 @@ Total speedup ratio: 6.54184
 删除了是否使用cuda的选项
 改写了speedup，使用cpu，gpu同时进行排序任务，单机加速比成功到11.3
 新增了access.cu和access.cuh，是用cuda模拟log sqrt任务，增加计算量
-
+```
 ------------------------------
 Time test 1/1 begins.
 
@@ -393,3 +393,37 @@ Result is sorted.
   Max speedup ratio: 8.96347
  Sort speedup ratio: 11.4749
 Total speedup ratio: 11.3995
+```
+
+# 2024.1.6（KevinTung）
+重写了cuda代码，使用merge排序，速度更快了，代码也相较于基数排序更简单
+改进了加速方法：加速比使用0.55，最后一次归并使用omp
+现在单机运行时间在9s以内，加速比14，已经比双机理论速度更快了（双机最快：9s/2+4.6s(千兆网传输所有数据)=9.1s）
+------------------------------
+Time test 1/1 begins.
+
+--- Original version ---
+  Sum time consumed: 1.11993
+  Max time consumed: 1.17635
+ Sort time consumed: 121.948
+Total time consumed: 124.244
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+  Sum time consumed: 0.180309
+  Max time consumed: 0.122088
+ Sort time consumed: 8.6145
+Total time consumed: 8.9169
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup ratio ---
+  Sum speedup ratio: 6.21118
+  Max speedup ratio: 9.63527
+ Sort speedup ratio: 14.1561
+Total speedup ratio: 13.9335

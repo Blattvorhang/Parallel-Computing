@@ -1,5 +1,6 @@
 #include <omp.h>        // OpenMP
 #include <immintrin.h>  // SIMD
+#include <chrono>
 #include <thread>
 #include <algorithm>
 #include "cuda.cuh"
@@ -65,6 +66,25 @@ float sumSpeedUp(const float data[], const int len) {
 }
 #endif
 
+void mergeomp(float result[], const float left[], const float right[], const int left_size, const int right_size) {
+    int total_size = left_size + right_size;
+
+    #pragma omp parallel
+    {
+        #pragma omp for nowait
+        for (int i = 0; i < left_size; ++i) {
+            result[i] = left[i];
+        }
+
+        #pragma omp for nowait
+        for (int j = 0; j < right_size; ++j) {
+            result[left_size + j] = right[j];
+        }
+    }
+
+    // 合并排序后的部分
+    std::inplace_merge(result, result + left_size, result + total_size);
+}
 
 float maxSpeedUp(const float data[], const int len) {
     if (len <= 0)
@@ -139,9 +159,8 @@ inline int log2(int x) {
     return result;
 }
 
-
 void sortSpeedUp(const float data[], const int len, float result[]) {
-    const double gpu_ratio = 0.5;
+    const double gpu_ratio = 0.55;
     const int gpu_len = int(len * gpu_ratio);
     const int cpu_len = len - gpu_len;
 
@@ -151,14 +170,14 @@ void sortSpeedUp(const float data[], const int len, float result[]) {
 
     // 使用 std::copy 进行高效拷贝
     std::copy(data + gpu_len, data + len, cpu_data);
-
+    
     std::thread thread1(sortSpeedUpCuda, gpu_data, gpu_len, gpu_result); // 创建线程1 是用GPU进行计算
     std::thread thread2(parallelSort, cpu_data, cpu_len, log2(MAX_THREADS) - 1); // 创建线程2，是用CPU进行计算
 
     thread1.join();
     thread2.join();
 
-    merge(result, gpu_result, cpu_data, gpu_len, cpu_len); //归并排序
+    mergeomp(result, gpu_result, cpu_data, gpu_len, cpu_len); //归并排序
 
     delete [] gpu_result;
     delete [] cpu_data;
