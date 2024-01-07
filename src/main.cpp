@@ -73,7 +73,7 @@ double timeTest(
     std::cout << "Total time consumed: " << time_consumed << std::endl;
     std::cout << std::endl;
 
-    /* last time result */
+    /* result check */
     std::cout << "sum: " << sum_value << std::endl;
     std::cout << "max: " << max_value << std::endl;
 
@@ -81,7 +81,7 @@ double timeTest(
     for (size_t i = 0; i < DATANUM - 1; i++)
     {
         //std::cout << result[i] << " ";
-        if (result[i] > result[i + 1])
+        if (ACCESS(result[i]) > ACCESS(result[i + 1]))
         {
             sorted_flag = 0;
             break;
