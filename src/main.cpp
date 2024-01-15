@@ -52,7 +52,8 @@ void init(float data[], const int len) {
     const uint_fast32_t seed = 42;
     std::mt19937 rng(seed);
     std::cout << "Shuffling data..." << std::endl;
-    parallelShuffle(rawFloatData, len, rng);
+    std::shuffle(rawFloatData, rawFloatData + len, rng);
+    //parallelShuffle(rawFloatData, len, rng);  // faster
 #endif
 }
 
