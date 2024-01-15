@@ -1,57 +1,94 @@
-#include <iostream>
 #include <cuda_runtime.h>
-#include <cstdlib>
-#include "access.cuh"
-__global__ void countSort(float* data, float* output, int len, int exp) {
-    int i = threadIdx.x + blockDim.x * blockIdx.x;
+#include <iostream>
+#include "common.h"
 
-    if (i < len) {
-        int count[2] = {0};  // 仅有两个桶：0 或 1
+__device__ void merge(float* data, float* aux, int left, int mid, int right) {
+    int i = left;
+    int j = mid + 1;
+    int k = left;
 
-        // 计算每位上的0和1的数量
-        for (int j = 0; j < len; j++) {
-            int bit = (reinterpret_cast<int*>(&data[j])[0] >> exp) & 1;
-            count[bit]++;
+    while (i <= mid && j <= right) {
+        if (ACCESS(data[i]) <= ACCESS(data[j])) {
+            aux[k++] = data[i++];
         }
-
-        __syncthreads();
-
-        // 计算累积和
-        int total = 0;
-        for (int j = 0; j <= (reinterpret_cast<int*>(&data[i])[0] >> exp) & 1; j++) {
-            total += count[j];
+        else {
+            aux[k++] = data[j++];
         }
+    }
 
-        __syncthreads();
+    while (i <= mid) {
+        aux[k++] = data[i++];
+    }
 
-        // 排序
-        output[total - 1] = data[i];
+    while (j <= right) {
+        aux[k++] = data[j++];
+    }
 
-        __syncthreads();
+    for (i = left; i <= right; i++) {
+        data[i] = aux[i];
+    }
+}
 
-        // 将排序后的数据写回原数组
-        if (i < len) {
-            data[i] = output[i];
+__global__ void mergeSortKernel(float *input, float *output, long long len, int width) {
+    long long idx = blockIdx.x * blockDim.x + threadIdx.x;
+    long long start = idx * (2 * width);
+    
+    if (start >= len) return;  // 防止越界
+
+    int mid = min(start + width, len);
+    int end = min(start + 2 * width, len);
+
+    // 在全局内存上执行合并操作
+    // 注意：这里应该使用一个专门的函数来在全局内存上执行合并
+    // 下面的代码是简化的示意，你可能需要调整它以适应你的合并逻辑
+    int i = start, j = mid, k = start;
+    while (i < mid && j < end) {
+        if (input[i] < input[j]) {
+            output[k++] = input[i++];
+        } else {
+            output[k++] = input[j++];
         }
+    }
+
+    while (i < mid) {
+        output[k++] = input[i++];
+    }
+
+    while (j < end) {
+        output[k++] = input[j++];
     }
 }
 
 void sortSpeedUpCuda(const float data[], const int len, float result[]) {
-    applyLogSqrt(data,len); //模拟任务负担
-    float *dev_data, *dev_output;
-    
-    cudaMalloc((void**)&dev_data, len * sizeof(float));
-    cudaMalloc((void**)&dev_output, len * sizeof(float));  // 为输出数组分配内存
-    cudaMemcpy(dev_data, data, len * sizeof(float), cudaMemcpyHostToDevice);
+    float *device_input, *device_output, *device_temp;
+    // 在 GPU 上为原始数据和辅助数组分配内存
+    cudaMalloc((void**)&device_input, len * sizeof(float));
+    cudaMalloc((void**)&device_output, len * sizeof(float));
 
-    int blockSize = 256;  // 选择一个合适的块大小
-    int numBlocks = (len + blockSize - 1) / blockSize;
-    for (int exp = 0; exp < 32; exp++) {
-        countSort<<<numBlocks, blockSize>>>(dev_data, dev_output, len, exp);
+    // 将原始数据复制到 GPU
+    cudaMemcpy(device_input, data, len * sizeof(float), cudaMemcpyHostToDevice);
+    long long len_long = len;
+    // 每次迭代中处理的数组部分的大小
+    int width = 1;
+    int blockSize = 1024;  // 线程块大小
+    while (width < len) {
+        int numBlocks = (len + 2 * width - 1) / (2 * width);
+
+        mergeSortKernel<<<numBlocks, blockSize>>>(device_input, device_output, len_long, width);
+
         cudaDeviceSynchronize();
+
+        // 交换输入和输出数组的指针
+        device_temp = device_input;
+        device_input = device_output;
+        device_output = device_temp;
+        width *= 2;
     }
 
-    cudaMemcpy(result, dev_output, len * sizeof(float), cudaMemcpyDeviceToHost);
-    cudaFree(dev_data);
-    cudaFree(dev_output);  // 释放输出数组的内存
+    // 将排序后的数据复制回主机
+    cudaMemcpy(result, device_input, len * sizeof(float), cudaMemcpyDeviceToHost);
+
+    // 释放 GPU 上的内存
+    cudaFree(device_input);
+    cudaFree(device_output);
 }

@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 # set the output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -O2")
 # find OpenMP
 find_package(OpenMP REQUIRED)
 
@@ -41,7 +41,6 @@ add_executable(${PROJECT_NAME}
     src/server.cpp
     src/net.cpp
     src/cuda.cu
-    src/access.cu
 )
 
 # add the include directory

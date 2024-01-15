@@ -364,7 +364,7 @@ Total speedup ratio: 6.54184
 删除了是否使用cuda的选项
 改写了speedup，使用cpu，gpu同时进行排序任务，单机加速比成功到11.3
 新增了access.cu和access.cuh，是用cuda模拟log sqrt任务，增加计算量
-
+```
 ------------------------------
 Time test 1/1 begins.
 
@@ -393,3 +393,96 @@ Result is sorted.
   Max speedup ratio: 8.96347
  Sort speedup ratio: 11.4749
 Total speedup ratio: 11.3995
+```
+
+# 2024.1.6（KevinTung）
+重写了cuda代码，使用merge排序，速度更快了，代码也相较于基数排序更简单
+改进了加速方法：加速比使用0.55，最后一次归并使用omp
+```
+Time test 1/1 begins.
+
+--- Original version ---
+  Sum time consumed: 1.13723
+  Max time consumed: 1.20963
+ Sort time consumed: 126.87
+Total time consumed: 129.217
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+  Sum time consumed: 0.148605
+  Max time consumed: 0.125594
+ Sort time consumed: 14.3801
+Total time consumed: 14.6543
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup ratio ---
+  Sum speedup ratio: 7.65274
+  Max speedup ratio: 9.63128
+ Sort speedup ratio: 8.82265
+Total speedup ratio: 8.81772
+```
+
+编写了基数排序的cpu版本，比merge更快一些
+现在单机运行时间在10s以内，加速比12，已经比双机理论速度更快了（双机最快：10s/2+5s(千兆网传输所有数据)=10s）
+```
+--- Original version ---
+  Sum time consumed: 1.16718
+  Max time consumed: 1.20018
+ Sort time consumed: 116.004
+Total time consumed: 118.371
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup version ---
+  Sum time consumed: 0.159357
+  Max time consumed: 0.183435
+ Sort time consumed: 9.58962
+Total time consumed: 9.93241
+
+sum: 1.13072e+09
+max: 9.33377
+Result is sorted.
+
+--- Speedup ratio ---
+  Sum speedup ratio: 7.32432
+  Max speedup ratio: 6.54282
+ Sort speedup ratio: 12.0968
+Total speedup ratio: 11.9177
+```
+
+# 1.15 (Blattvorhang)
+最终文件树：
+```shell
+.
+├── CMakeLists.txt      # 项目构建文件
+├── README.md
+├── build.bash          # 编译脚本
+├── docs
+│   └── CHANGELOG.md    # 开发日志
+├── include             # 头文件
+│   ├── common.h
+│   ├── cuda.cuh
+│   ├── net.hpp         # 网络公用函数及client端、server端函数
+│   ├── original.h
+│   └── speedup.h
+├── run_client.bash     # client模式运行脚本
+├── run_local.bash      # local模式运行脚本
+├── run_server.bash     # server模式运行脚本
+└── src                 # CPP源文件
+    ├── client.cpp      # client端函数
+    ├── common.cpp      # 公用函数
+    ├── cuda.cu         # CUDA
+    ├── main.cpp        # 主函数
+    ├── net.cpp         # 网络公用函数
+    ├── original.cpp    # 加速前
+    ├── server.cpp      # server端函数
+    └── speedup.cpp     # 加速后
+```

@@ -1,4 +1,5 @@
 #include <iostream>
+#include "common.h"
 #include "net.hpp"
 
 ssize_t safeSend(int socket, const void* buffer, size_t length, int flags) {
