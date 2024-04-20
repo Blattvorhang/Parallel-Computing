@@ -31,7 +31,6 @@ In teams of two, utilize advanced C++ techniques including acceleration (SIMD, m
 
 ## Scoring Criteria
 - Higher acceleration ratios result in higher scores.
-- Teams with more than two members score lower than two-member teams with the same acceleration ratio.
 - An additional 5 points for implementations on non-Windows platforms (limited to Ubuntu, Android).
 - Scores will be based on the actual testing results provided. Reports must include accurate and valid time statistics; falsification will result in penalties.
 
