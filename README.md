@@ -1,4 +1,4 @@
-# SpeedUp Computing
+# Parallel Computing
 
 ## Project Overview
 Accelerating array computations through multi-threading, SIMD, distributed networking (synchronous and asynchronous mechanisms) between 2 PCs running on Linux, algorithmic optimizations, and CUDA, maximizing hardware resources for enhanced performance.
